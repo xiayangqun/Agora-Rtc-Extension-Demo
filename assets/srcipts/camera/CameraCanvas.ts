@@ -105,6 +105,22 @@ export class CameraCanvas extends BaseCanvas {
         }
     }
 
+    async startPreview(): Promise<void> {
+        let errorCode = await this.rtcEngine.startPreview();
+        if (errorCode == 0) {
+            this.logContent.log("startPreview success");
+            this.videoContent.createVideoItem(this.rtcEngine, {
+                uid: 0,
+                view: null,
+                sourceType: VIDEO_SOURCE_TYPE.VIDEO_SOURCE_CAMERA,
+                mediaPlayerId: 0,
+            }, null);
+        }
+        else {
+            this.logContent.error("startPreview failed, errorCode: ", errorCode);
+        }
+    }
+
     async joinChannel(): Promise<void> {
         let erroCode = await this.rtcEngine.enableVideo();
         if (erroCode !== 0) {
@@ -126,7 +142,7 @@ export class CameraCanvas extends BaseCanvas {
             this.appIdInfo.token,
             this.appIdInfo.channelId,
             "",
-            this.uid,
+            this.uid
         );
         if (erroCode !== 0) {
             this.logContent.error(" joinChannel failed, errorCode: ", erroCode);
@@ -150,6 +166,7 @@ export class CameraCanvas extends BaseCanvas {
     async releaseRtcEngine(): Promise<void> {
         await this.rtcEngine.release(true);
         this.rtcEngine = null;
+        this.videoContent.clear();
         this.logContent.log("releaseRtcEngine success");
     }
 }

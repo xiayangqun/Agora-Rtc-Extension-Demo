@@ -1,6 +1,6 @@
 import { instantiate, Prefab } from 'cc';
 import { _decorator, Component, Node } from 'cc';
-import { RtcConnection, VideoCanvas,IRtcEngineEx} from 'db://agora-rtc-extension-for-cocos-creator/agora-rtc';
+import { RtcConnection, VideoCanvas, IRtcEngineEx } from 'db://agora-rtc-extension-for-cocos-creator/agora-rtc';
 import { VideoItemBase } from '../base/VideoItemBase';
 const { ccclass, property } = _decorator;
 
@@ -14,6 +14,15 @@ export class VideoContent extends Component {
     public videoItemContainer: Node = null;
 
     createVideoItem(rtcEngine: IRtcEngineEx, canvas: VideoCanvas, connection?: RtcConnection): Node {
+        const children = this.videoItemContainer.children;
+        for (let i = children.length - 1; i >= 0; i--) {
+            const item = children[i].getComponent(VideoItemBase);
+            if (item && item.isSameVideoItem(canvas, connection)) {
+                console.warn("createVideoItem, item is same");
+                return item.node;
+            }
+        }
+
         const videoItem = instantiate(this.videoItemPrefab);
         videoItem.getComponent(VideoItemBase)?.setupVideoCanvas(rtcEngine, canvas, connection);
         videoItem.parent = this.videoItemContainer;
@@ -30,6 +39,10 @@ export class VideoContent extends Component {
                 return;
             }
         }
+    }
+
+    clear(){
+        this.videoItemContainer.removeAllChildren();
     }
 }
 

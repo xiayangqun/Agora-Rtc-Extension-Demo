@@ -140,10 +140,10 @@ export class VideoItemBase extends Component {
     resize(width: number, height: number) {
         console.log("resize", width, height);
 
-        if (this.spriteFrame) {
-            this.spriteFrame.packable = false;
-            (this.spriteFrame as unknown as { _resetDynamicAtlasFrame?: () => void })._resetDynamicAtlasFrame?.();
-        }
+        // if (this.spriteFrame) {
+        //     this.spriteFrame.packable = false;
+        //     (this.spriteFrame as unknown as { _resetDynamicAtlasFrame?: () => void })._resetDynamicAtlasFrame?.();
+        // }
 
         this.spriteFrame.reset({
             texture: this.texture,
