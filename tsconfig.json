@@ -1,0 +1,21 @@
+{
+  /* Base configuration. Do not edit this field. */
+  "extends": "./temp/tsconfig.cocos.json",
+
+  /* Add your custom configuration here. */
+  "compilerOptions": {
+    "strict": false,
+    "baseUrl": ".",
+    "paths": {
+      "db://agora-rtc-extension-for-cocos-creator/*": [
+        "./extensions/agora-rtc-extension-for-cocos-creator/assets/*"
+      ],
+      "agora-rtc-sdk-ng": [
+        "./extensions/agora-rtc-extension-for-cocos-creator/assets/agora-rtc/lib/rtc-sdk_cn"
+      ],
+      "agora-rte-extension": [
+        "./extensions/agora-rtc-extension-for-cocos-creator/assets/agora-rtc/lib/agora-rte-extension"
+      ]
+    }
+  }
+}
