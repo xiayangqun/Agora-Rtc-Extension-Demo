@@ -11,10 +11,10 @@
         "./extensions/agora-rtc-extension-for-cocos-creator/assets/*"
       ],
       "agora-rtc-sdk-ng": [
-        "./extensions/agora-rtc-extension-for-cocos-creator/assets/agora-rtc/lib/rtc-sdk_cn"
+          "./extensions/agora-rtc-extension-for-cocos-creator/assets/agora-rtc/lib/rtc-sdk_cn"
       ],
       "agora-rte-extension": [
-        "./extensions/agora-rtc-extension-for-cocos-creator/assets/agora-rtc/lib/agora-rte-extension"
+          "./extensions/agora-rtc-extension-for-cocos-creator/assets/agora-rtc/lib/agora-rte-extension"
       ]
     }
   }
