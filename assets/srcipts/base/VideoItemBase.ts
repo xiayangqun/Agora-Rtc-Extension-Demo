@@ -129,8 +129,10 @@ export class VideoItemBase extends Component {
         this.texture = new Texture2D();
 
         this.spriteFrame = new SpriteFrame();
-        this.spriteFrame.packable = false;
         this.spriteFrame.texture = this.texture;
+        // Keep video frames out of Cocos dynamic atlas. Do not remove: dynamic
+        // atlas repacking can copy changing video textures with stale bounds.
+        this.spriteFrame.packable = false;
 
         this.videoSprite.spriteFrame = this.spriteFrame;
         this.material = this.videoMeshRenderer.getMaterialInstance(0);
@@ -140,21 +142,30 @@ export class VideoItemBase extends Component {
     resize(width: number, height: number) {
         console.log("resize", width, height);
 
-        // if (this.spriteFrame) {
-        //     this.spriteFrame.packable = false;
-        //     (this.spriteFrame as unknown as { _resetDynamicAtlasFrame?: () => void })._resetDynamicAtlasFrame?.();
-        // }
-
+        // If Cocos packed this frame before packable was disabled, restore the
+        // original video texture first. Do not remove: it prevents atlas-state
+        // residue from corrupting later SpriteFrame.reset() calls.
+        (this.spriteFrame as unknown as { _resetDynamicAtlasFrame?: () => void })._resetDynamicAtlasFrame?.();
         this.spriteFrame.reset({
             texture: this.texture,
             rect: new Rect(0, 0, width, height),
             originalSize: new Size(width, height),
         });
-        // this.videoSprite.setTextureDirty?.();
-        this.videoSprite.markForUpdateRenderData?.();
-        let spriteTrans = this.videoSprite.getComponent(UITransform);
-        let spriteWidth = spriteTrans.height * width / height;
-        spriteTrans.width = spriteWidth;
+        // SpriteFrame.reset({ texture }) may re-run Cocos' packable checks.
+        // Do not remove: video textures must stay unpackable after every reset.
+        this.spriteFrame.packable = false;
+
+        const spriteRenderer = this.videoSprite as unknown as {
+            setTextureDirty?: () => void;
+            markForUpdateRenderData?: () => void;
+        };
+        // Force the Sprite assembler to sample the rebuilt Texture2D. Do not
+        // remove: Texture2D.reset() recreates the underlying GPU texture.
+        spriteRenderer.setTextureDirty?.();
+        spriteRenderer.markForUpdateRenderData?.();
+
+        const spriteTrans = this.videoSprite.getComponent(UITransform);
+        spriteTrans.width = spriteTrans.height * width / height;
 
         this.material.setProperty("mainTexture", this.texture);
     }
@@ -164,4 +175,3 @@ export class VideoItemBase extends Component {
         this.spriteFrame.destroy();
     }
 }
-

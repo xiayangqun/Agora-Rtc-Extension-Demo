@@ -24,3 +24,5 @@ node_modules/
 .idea/
 extensions/extension-auto-refresh
 .creator
+.codegraph
+.claude
