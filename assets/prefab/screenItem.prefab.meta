@@ -2,12 +2,12 @@
   "ver": "1.1.45",
   "importer": "prefab",
   "imported": true,
-  "uuid": "ab9b5df3-f1ca-4491-a164-bb8c9426ecf4",
+  "uuid": "1f21a7d5-b34b-455c-90fc-52303654638d",
   "files": [
     ".json"
   ],
   "subMetas": {},
   "userData": {
-    "syncNodeName": "videoSprite"
+    "syncNodeName": "screenItem"
   }
 }

@@ -66,7 +66,7 @@ export class VideoItemBase extends Component {
             this.createTextureAndAttachToSelf();
             canvas.view = this.texture;
             if (connection) {
-                this.infoLabel.string = `ex: Channel ID: ${connection.channelId}, UID: ${connection.localUid}`;
+                this.infoLabel.string = `ex: { ${connection.channelId} : ${connection.localUid}, remote UID: ${canvas.uid} }`;
                 rtcEngine.setupRemoteVideoEx(canvas, connection, (width, height) => {
                     this.resize(width, height);
                 });
