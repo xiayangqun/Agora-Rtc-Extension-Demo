@@ -1,0 +1,11 @@
+{
+  "name": "Agora-Rtc-Extension-Demo",
+  "uuid": "8bafc41f-2598-426e-95e6-033bbedbb0af",
+  "creator": {
+    "version": "3.8.0"
+  },
+  "dependencies": {
+    "agora-rtc-sdk-ng": "^4.24.3"
+  },
+  "version": "3.8.0"
+}

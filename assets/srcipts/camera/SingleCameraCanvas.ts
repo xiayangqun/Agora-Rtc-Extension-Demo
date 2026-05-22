@@ -20,12 +20,14 @@ import {
 import { VideoSprite } from "../prefab/VideoSprite";
 import { BaseCanvas } from "../base/BaseCanvas";
 import { app } from "electron";
+import { VideoContent } from "../prefab/VideoContent";
+import { AppAcountInfo } from "../base/AppAcountInfo";
 
 const { ccclass, property } = _decorator;
 
-class CameraCanvasRtcEngineEventHandler extends IRtcEngineEventHandler {
-    _cameraCanvas: CameraCanvas = null;
-    constructor(cameraCanvas: CameraCanvas) {
+class SingleCameraCanvasRtcEngineEventHandler extends IRtcEngineEventHandler {
+    _cameraCanvas: SingleCameraCanvas = null;
+    constructor(cameraCanvas: SingleCameraCanvas) {
         super();
         this._cameraCanvas = cameraCanvas;
     }
@@ -46,7 +48,7 @@ class CameraCanvasRtcEngineEventHandler extends IRtcEngineEventHandler {
         let canvas: VideoCanvas = {
             uid: remoteUid,
             view: null,
-            sourceType: VIDEO_SOURCE_TYPE.VIDEO_SOURCE_CAMERA,
+            sourceType: VIDEO_SOURCE_TYPE.VIDEO_SOURCE_REMOTE,
             mediaPlayerId: 0,
         };
         this._cameraCanvas.videoContent.createVideoItem(this._cameraCanvas.rtcEngine, canvas, null);
@@ -68,18 +70,20 @@ class CameraCanvasRtcEngineEventHandler extends IRtcEngineEventHandler {
     }
 }
 
-@ccclass("CameraCanvas")
-export class CameraCanvas extends BaseCanvas {
-    public uid: number = 1001;
+@ccclass("SingleCameraCanvas")
+export class SingleCameraCanvas extends BaseCanvas {
+
+    @property(VideoContent)
+    public videoContent: VideoContent = null;
 
 
     async createRtcEngine(): Promise<void> {
         this.rtcEngine = createRtcEngine();
-        await this.initAppIdInfo();
-        const appIdInfo = this.appIdInfo;
+
+        const appAcountInfo = await AppAcountInfo.instance();
         let config: RtcEngineContext = {
-            eventHandler: new CameraCanvasRtcEngineEventHandler(this),
-            appId: appIdInfo.appId,
+            eventHandler: new SingleCameraCanvasRtcEngineEventHandler(this),
+            appId: appAcountInfo.appId,
             context: 0,
             channelProfile: CHANNEL_PROFILE_TYPE.CHANNEL_PROFILE_GAME,
             license: "",
@@ -138,11 +142,12 @@ export class CameraCanvas extends BaseCanvas {
             this.logContent.log("setRtcVideoDebugViewEnabled success");
         }
 
+        const appAcountInfo = await AppAcountInfo.instance();
         erroCode = await this.rtcEngine.joinChannel(
-            this.appIdInfo.token,
-            this.appIdInfo.channelId,
+            appAcountInfo.token,
+            appAcountInfo.channelId,
             "",
-            this.uid
+            appAcountInfo.numberUid1
         );
         if (erroCode !== 0) {
             this.logContent.error(" joinChannel failed, errorCode: ", erroCode);
