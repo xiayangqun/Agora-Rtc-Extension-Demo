@@ -2,12 +2,12 @@
   "ver": "1.1.45",
   "importer": "prefab",
   "imported": true,
-  "uuid": "cae3fd42-24a6-48fd-8d11-3f5dc0622a3b",
+  "uuid": "c5db60bb-ac9b-4e7e-8cfe-30a78c632c9a",
   "files": [
     ".json"
   ],
   "subMetas": {},
   "userData": {
-    "syncNodeName": "videoItem"
+    "syncNodeName": "mediaItem"
   }
 }

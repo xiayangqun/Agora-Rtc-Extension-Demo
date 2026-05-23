@@ -171,7 +171,7 @@ export class VideoItemBase extends Component {
     }
 
     protected onDestroy(): void {
-        this.texture.destroy();
-        this.spriteFrame.destroy();
+        this.spriteFrame?.destroy();
+        this.texture?.destroy();
     }
 }
