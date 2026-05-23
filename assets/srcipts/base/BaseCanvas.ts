@@ -5,6 +5,7 @@ import { VideoContent } from '../prefab/VideoContent';
 import { JsonAsset } from 'cc';
 import { AudioClip } from 'cc';
 import { AudioSource } from 'cc';
+import { director } from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('BaseCanvas')
@@ -21,6 +22,11 @@ export class BaseCanvas extends Component {
 
     public rtcEngine: IRtcEngineEx = null;
 
+    async backMain(){
+        await this.rtcEngine?.release(true);
+        this.rtcEngine = null;
+        director.loadScene('main');
+    }
 
     BgmOnOff() {
         if (this.bgmSource.playing) {

@@ -8,8 +8,8 @@ import { _decorator, Component, Node } from 'cc';
 import { IRtcEngineEx, RtcConnection, VIDEO_SOURCE_TYPE, VideoCanvas } from 'db://agora-rtc-extension-for-cocos-creator/agora-rtc';
 const { ccclass, property } = _decorator;
 
-@ccclass('VideoItemBase')
-export class VideoItemBase extends Component {
+@ccclass('VideoItem')
+export class VideoItem extends Component {
 
     @property(Label)
     public belongLabel: Label = null;
