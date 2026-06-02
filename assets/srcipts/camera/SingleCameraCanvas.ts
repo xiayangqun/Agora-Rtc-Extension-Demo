@@ -12,8 +12,10 @@ import {
     VIDEO_VIEW_SETUP_MODE,
     VIDEO_MODULE_POSITION,
     CHANNEL_PROFILE_TYPE,
+    CLIENT_ROLE_TYPE,
     AREA_CODE,
     AUDIO_SCENARIO_TYPE,
+    ChannelMediaOptions,
     VideoCanvas,
     USER_OFFLINE_REASON_TYPE
 } from "db://agora-rtc-extension-for-cocos-creator/agora-rtc";
@@ -143,11 +145,18 @@ export class SingleCameraCanvas extends BaseCanvas {
         }
 
         const appAcountInfo = await AppAcountInfo.instance();
+        const options: ChannelMediaOptions = {
+            clientRoleType: CLIENT_ROLE_TYPE.CLIENT_ROLE_BROADCASTER,
+            publishCameraTrack: true,
+            publishMicrophoneTrack: true,
+            autoSubscribeAudio: true,
+            autoSubscribeVideo: true,
+        };
         erroCode = await this.rtcEngine.joinChannel(
             appAcountInfo.token,
             appAcountInfo.channelId,
-            "",
-            appAcountInfo.numberUid1
+            appAcountInfo.numberUid1,
+            options
         );
         if (erroCode !== 0) {
             this.logContent.error(" joinChannel failed, errorCode: ", erroCode);
@@ -169,9 +178,17 @@ export class SingleCameraCanvas extends BaseCanvas {
     }
 
     async releaseRtcEngine(): Promise<void> {
-        await this.rtcEngine.release(true);
-        this.rtcEngine = null;
-        this.videoContent.clear();
-        this.logContent.log("releaseRtcEngine success");
+        if (this.rtcEngine) {
+            //before release engine, make sure all video canvas is unbinded and all texture is destroyed, 
+            await this.videoContent.clear();
+            await this.rtcEngine.release(true);
+            this.rtcEngine = null;
+            this.logContent.log("releaseRtcEngine success");
+        }
+    }
+
+    //this is call before back main
+    async clearSelf(): Promise<void> {
+        await this.releaseRtcEngine();
     }
 }

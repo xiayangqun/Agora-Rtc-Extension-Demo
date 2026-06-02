@@ -1,7 +1,7 @@
 {
-    "appId": "YOUT_APP_ID",
-    "channelId": "YOUT_CHANNEL_ID",
-    "token": "YOUT_TOKEN",
+    "appId": "5bad1c77d7a0447fbd3b6f838af007ca",
+    "channelId": "cocos_demo",
+    "token": "",
     "numberUid1":1001,
     "numberUid2":1002,
     "stringUid1":"stringUid1",

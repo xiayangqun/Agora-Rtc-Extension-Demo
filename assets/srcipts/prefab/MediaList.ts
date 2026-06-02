@@ -18,5 +18,9 @@ export class MediaList extends Component {
         item.getComponent(MediaItem).init(mediaPlayer);
         item.parent = this.container;
     }
+
+    async clear(){
+
+    }
 }
 

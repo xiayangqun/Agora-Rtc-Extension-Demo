@@ -2867,7 +2867,16 @@
     "_isUnderline": false,
     "_underlineHeight": 2,
     "_cacheMode": 0,
-    "_id": "dcDVIWdgxEnphqCnD7p84w"
+    "_id": "dcDVIWdgxEnphqCnD7p84w",
+    "_enableOutline": true,
+    "_outlineWidth": 1,
+    "_outlineColor": {
+      "__type__": "cc.Color",
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 255
+    }
   },
   {
     "__type__": "cc.LabelOutline",
@@ -2879,14 +2888,6 @@
     },
     "_enabled": true,
     "__prefab": null,
-    "_color": {
-      "__type__": "cc.Color",
-      "r": 0,
-      "g": 0,
-      "b": 0,
-      "a": 255
-    },
-    "_width": 1,
     "_id": "c7klT2SAhLw4wKcCjUZqQp"
   },
   {
@@ -3032,7 +3033,16 @@
     "_isUnderline": false,
     "_underlineHeight": 2,
     "_cacheMode": 0,
-    "_id": "2cODlDcSNDX60bmjUzSsEV"
+    "_id": "2cODlDcSNDX60bmjUzSsEV",
+    "_enableOutline": true,
+    "_outlineWidth": 1,
+    "_outlineColor": {
+      "__type__": "cc.Color",
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 255
+    }
   },
   {
     "__type__": "cc.LabelOutline",
@@ -3044,14 +3054,6 @@
     },
     "_enabled": true,
     "__prefab": null,
-    "_color": {
-      "__type__": "cc.Color",
-      "r": 0,
-      "g": 0,
-      "b": 0,
-      "a": 255
-    },
-    "_width": 1,
     "_id": "7dZRwBzxtFbZy5xNLc9oMV"
   },
   {
@@ -3252,7 +3254,16 @@
     "_isUnderline": false,
     "_underlineHeight": 2,
     "_cacheMode": 0,
-    "_id": "66SqZr3+JK87XFieb+It+8"
+    "_id": "66SqZr3+JK87XFieb+It+8",
+    "_enableOutline": true,
+    "_outlineWidth": 1,
+    "_outlineColor": {
+      "__type__": "cc.Color",
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 255
+    }
   },
   {
     "__type__": "cc.LabelOutline",
@@ -3264,14 +3275,6 @@
     },
     "_enabled": true,
     "__prefab": null,
-    "_color": {
-      "__type__": "cc.Color",
-      "r": 0,
-      "g": 0,
-      "b": 0,
-      "a": 255
-    },
-    "_width": 1,
     "_id": "b5l97qcD9BsqWcxX1gKSPI"
   },
   {
@@ -4375,7 +4378,16 @@
     "_isUnderline": false,
     "_underlineHeight": 2,
     "_cacheMode": 0,
-    "_id": "acG70QVBJKv7yZyZlU7Q6a"
+    "_id": "acG70QVBJKv7yZyZlU7Q6a",
+    "_enableOutline": false,
+    "_outlineWidth": 1,
+    "_outlineColor": {
+      "__type__": "cc.Color",
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 255
+    }
   },
   {
     "__type__": "cc.LabelOutline",
@@ -4387,14 +4399,6 @@
     },
     "_enabled": false,
     "__prefab": null,
-    "_color": {
-      "__type__": "cc.Color",
-      "r": 0,
-      "g": 0,
-      "b": 0,
-      "a": 255
-    },
-    "_width": 1,
     "_id": "bfsQzr+3lF474oAAHTUlsc"
   },
   {
@@ -4956,7 +4960,16 @@
     "_isUnderline": false,
     "_underlineHeight": 2,
     "_cacheMode": 0,
-    "_id": "f4K2HnjdpNVLe7vbIy3IuQ"
+    "_id": "f4K2HnjdpNVLe7vbIy3IuQ",
+    "_enableOutline": false,
+    "_outlineWidth": 1,
+    "_outlineColor": {
+      "__type__": "cc.Color",
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 255
+    }
   },
   {
     "__type__": "cc.LabelOutline",
@@ -4968,14 +4981,6 @@
     },
     "_enabled": false,
     "__prefab": null,
-    "_color": {
-      "__type__": "cc.Color",
-      "r": 0,
-      "g": 0,
-      "b": 0,
-      "a": 255
-    },
-    "_width": 1,
     "_id": "01zYJsGx5AbZRxafgEKqsR"
   },
   {
@@ -5537,7 +5542,16 @@
     "_isUnderline": false,
     "_underlineHeight": 2,
     "_cacheMode": 0,
-    "_id": "adFqJIwrpInYtPyQ6eao3g"
+    "_id": "adFqJIwrpInYtPyQ6eao3g",
+    "_enableOutline": false,
+    "_outlineWidth": 1,
+    "_outlineColor": {
+      "__type__": "cc.Color",
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 255
+    }
   },
   {
     "__type__": "cc.LabelOutline",
@@ -5549,14 +5563,6 @@
     },
     "_enabled": false,
     "__prefab": null,
-    "_color": {
-      "__type__": "cc.Color",
-      "r": 0,
-      "g": 0,
-      "b": 0,
-      "a": 255
-    },
-    "_width": 1,
     "_id": "888vyMtwpJWoKQEPFrcjPl"
   },
   {
@@ -6118,7 +6124,16 @@
     "_isUnderline": false,
     "_underlineHeight": 2,
     "_cacheMode": 0,
-    "_id": "07nb35xe9HT4RsMGz+uVsj"
+    "_id": "07nb35xe9HT4RsMGz+uVsj",
+    "_enableOutline": false,
+    "_outlineWidth": 1,
+    "_outlineColor": {
+      "__type__": "cc.Color",
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 255
+    }
   },
   {
     "__type__": "cc.LabelOutline",
@@ -6130,14 +6145,6 @@
     },
     "_enabled": false,
     "__prefab": null,
-    "_color": {
-      "__type__": "cc.Color",
-      "r": 0,
-      "g": 0,
-      "b": 0,
-      "a": 255
-    },
-    "_width": 1,
     "_id": "9dsTUbYP5BfoFlbMAiy7gq"
   },
   {
@@ -6699,7 +6706,16 @@
     "_isUnderline": false,
     "_underlineHeight": 2,
     "_cacheMode": 0,
-    "_id": "dfLv8P3EFDX762oY19MkVM"
+    "_id": "dfLv8P3EFDX762oY19MkVM",
+    "_enableOutline": false,
+    "_outlineWidth": 1,
+    "_outlineColor": {
+      "__type__": "cc.Color",
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 255
+    }
   },
   {
     "__type__": "cc.LabelOutline",
@@ -6711,14 +6727,6 @@
     },
     "_enabled": false,
     "__prefab": null,
-    "_color": {
-      "__type__": "cc.Color",
-      "r": 0,
-      "g": 0,
-      "b": 0,
-      "a": 255
-    },
-    "_width": 1,
     "_id": "3c5/xxszBHpoHhsA0GA+nG"
   },
   {
@@ -7280,7 +7288,16 @@
     "_isUnderline": false,
     "_underlineHeight": 2,
     "_cacheMode": 0,
-    "_id": "eck4B/0dtJwIrbde2H1y0Z"
+    "_id": "eck4B/0dtJwIrbde2H1y0Z",
+    "_enableOutline": false,
+    "_outlineWidth": 1,
+    "_outlineColor": {
+      "__type__": "cc.Color",
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 255
+    }
   },
   {
     "__type__": "cc.LabelOutline",
@@ -7292,14 +7309,6 @@
     },
     "_enabled": false,
     "__prefab": null,
-    "_color": {
-      "__type__": "cc.Color",
-      "r": 0,
-      "g": 0,
-      "b": 0,
-      "a": 255
-    },
-    "_width": 1,
     "_id": "afvX2eXU1JD5dpp7HRZU0E"
   },
   {
@@ -7861,7 +7870,16 @@
     "_isUnderline": false,
     "_underlineHeight": 2,
     "_cacheMode": 0,
-    "_id": "9bJuF3Ku5Pc4V30EOiJDbE"
+    "_id": "9bJuF3Ku5Pc4V30EOiJDbE",
+    "_enableOutline": false,
+    "_outlineWidth": 1,
+    "_outlineColor": {
+      "__type__": "cc.Color",
+      "r": 0,
+      "g": 0,
+      "b": 0,
+      "a": 255
+    }
   },
   {
     "__type__": "cc.LabelOutline",
@@ -7873,14 +7891,6 @@
     },
     "_enabled": false,
     "__prefab": null,
-    "_color": {
-      "__type__": "cc.Color",
-      "r": 0,
-      "g": 0,
-      "b": 0,
-      "a": 255
-    },
-    "_width": 1,
     "_id": "41gzUQ+mpPLYxlLU6IUZAr"
   },
   {

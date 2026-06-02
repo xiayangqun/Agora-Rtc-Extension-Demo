@@ -1,7 +1,7 @@
 import { instantiate } from 'cc';
 import { Label } from 'cc';
 import { Color } from 'cc';
-import { UITransform, Widget, view, CCFloat, _decorator, Component, Node } from 'cc';
+import { UITransform, Widget, view, CCFloat, _decorator, Component, Node, ScrollView } from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('LogContent')
@@ -17,6 +17,9 @@ export class LogContent extends Component {
 
     @property(CCFloat)
     public leftPadding: number = 0;
+
+    @property(ScrollView)
+    private scrollView: ScrollView = null;
 
     static readonly INFO_COLOR: Color = new Color(0, 255, 0, 255);
     static readonly ERROR_COLOR: Color = new Color(255, 0, 0);
@@ -50,33 +53,34 @@ export class LogContent extends Component {
         return `${Y}-${M}-${D} ${h}:${m}:${s}`;
     }
 
-    log(...args: any[]) {
+    private addLabel(text: string, color: Color) {
         const dateTime = this.formatDateTime();
         let labelNode = instantiate(this.modelLabel);
         labelNode.getComponent(UITransform).width = this.logContentWidth - 10;
-        labelNode.getComponent(Label).string = `${dateTime} ${LogContent.MOUDLE_NAME} ${args.join(' ')}`;
-        labelNode.parent = this.logContent; 
-        labelNode.getComponent(Label).color = LogContent.INFO_COLOR;
+        labelNode.getComponent(Label).string = `${dateTime} ${LogContent.MOUDLE_NAME} ${text}`;
+        labelNode.parent = this.logContent;
+        labelNode.getComponent(Label).color = color;
+        this.scrollToBottom();
+    }
+
+    private scrollToBottom() {
+        if (this.scrollView) {
+            this.scrollView.scrollToBottom(0.1);
+        }
+    }
+
+    log(...args: any[]) {
+        this.addLabel(args.join(' '), LogContent.INFO_COLOR);
         console.log(LogContent.MOUDLE_NAME, ...args);
     }
 
     warn(...args: any[]) {
-        const dateTime = this.formatDateTime();
-        let labelNode = instantiate(this.modelLabel);
-        labelNode.getComponent(UITransform).width = this.logContentWidth - 10;
-        labelNode.getComponent(Label).string = `${dateTime} ${LogContent.MOUDLE_NAME} ${args.join(' ')}`;
-        labelNode.parent = this.logContent;
-        labelNode.getComponent(Label).color = LogContent.WARNING_COLOR;
+        this.addLabel(args.join(' '), LogContent.WARNING_COLOR);
         console.warn(LogContent.MOUDLE_NAME, ...args);
     }
 
     error(...args: any[]) {
-        const dateTime = this.formatDateTime();
-        let labelNode = instantiate(this.modelLabel);
-        labelNode.getComponent(UITransform).width = this.logContentWidth - 10;
-        labelNode.getComponent(Label).string = `${dateTime} ${LogContent.MOUDLE_NAME} ${args.join(' ')}`;
-        labelNode.parent = this.logContent;
-        labelNode.getComponent(Label).color = LogContent.ERROR_COLOR;
+        this.addLabel(args.join(' '), LogContent.ERROR_COLOR);
         console.error(LogContent.MOUDLE_NAME, ...args);
     }
 }

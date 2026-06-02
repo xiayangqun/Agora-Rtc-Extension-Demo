@@ -23,9 +23,12 @@ export class BaseCanvas extends Component {
     public rtcEngine: IRtcEngineEx = null;
 
     async backMain(){
-        await this.rtcEngine?.release(true);
-        this.rtcEngine = null;
+        await this.clearSelf();
         director.loadScene('main');
+    }
+
+    async clearSelf(){
+        //impl in sub class
     }
 
     BgmOnOff() {

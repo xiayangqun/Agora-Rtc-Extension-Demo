@@ -41,7 +41,12 @@ export class VideoContent extends Component {
         }
     }
 
-    clear(){
+    clear() {
+        const children = this.videoItemContainer.children;
+        for (let i = children.length - 1; i >= 0; i--) {
+            const item = children[i].getComponent(VideoItem);
+            item.clearSelf();
+        }
         this.videoItemContainer.removeAllChildren();
     }
 }

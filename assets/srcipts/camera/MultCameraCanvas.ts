@@ -12,11 +12,14 @@ import {
     VIDEO_VIEW_SETUP_MODE,
     VIDEO_MODULE_POSITION,
     CHANNEL_PROFILE_TYPE,
+    CLIENT_ROLE_TYPE,
     AREA_CODE,
     AUDIO_SCENARIO_TYPE,
+    ChannelMediaOptions,
     VideoCanvas,
     USER_OFFLINE_REASON_TYPE,
-    IVideoDeviceCollection
+    IVideoDeviceCollection,
+    IVideoDeviceManager
 } from "db://agora-rtc-extension-for-cocos-creator/agora-rtc";
 import { VideoSprite } from "../prefab/VideoSprite";
 import { BaseCanvas } from "../base/BaseCanvas";
@@ -83,6 +86,9 @@ export class MultCameraCanvas extends BaseCanvas {
     @property(VideoContent)
     public videoContent: VideoContent = null;
 
+    videoDeviceManager: IVideoDeviceManager = null;
+    collection: IVideoDeviceCollection = null;
+
     async createRtcEngine(): Promise<void> {
         this.rtcEngine = createRtcEngine();
 
@@ -114,11 +120,11 @@ export class MultCameraCanvas extends BaseCanvas {
             this.logContent.log("initialize success");
         }
 
-        let videoDeviceManager = await this.rtcEngine.getVideoDeviceManager();
-        const collection: IVideoDeviceCollection = await videoDeviceManager.enumerateVideoDevices();
-        const count = await collection.getCount();
+        this.videoDeviceManager = await this.rtcEngine.getVideoDeviceManager();
+        this.collection = await this.videoDeviceManager.enumerateVideoDevices();
+        const count = await this.collection.getCount();
         for (let i = 0; i < count; i++) {
-            const devices = await collection.getDevice(i);
+            const devices = await this.collection.getDevice(i);
             this.logContent.log(`videoDevice ${i}: 
                 deviceIdUTF8: ${devices.deviceIdUTF8},
                 deviceNameUTF8: ${devices.deviceNameUTF8}, 
@@ -146,7 +152,9 @@ export class MultCameraCanvas extends BaseCanvas {
     }
 
     async startFirstCameraCapture(): Promise<void> {
+        const { deviceIdUTF8 } = await this.collection.getDevice(0);
         let errorCode = await this.rtcEngine.startCameraCapture(VIDEO_SOURCE_TYPE.VIDEO_SOURCE_CAMERA, {
+            deviceId: deviceIdUTF8,
             format: {
                 width: 640,
                 height: 480,
@@ -169,7 +177,9 @@ export class MultCameraCanvas extends BaseCanvas {
     }
 
     async startSecondCameraCapture(): Promise<void> {
+        const { deviceIdUTF8 } = await this.collection.getDevice(1);
         let errorCode = await this.rtcEngine.startCameraCapture(VIDEO_SOURCE_TYPE.VIDEO_SOURCE_CAMERA_SECONDARY, {
+            deviceId: deviceIdUTF8,
             format: {
                 width: 640,
                 height: 480,
@@ -193,11 +203,17 @@ export class MultCameraCanvas extends BaseCanvas {
 
     async joinChannelWithUid1(): Promise<void> {
         const appAcountInfo = await AppAcountInfo.instance();
+        const options: ChannelMediaOptions = {
+            clientRoleType: CLIENT_ROLE_TYPE.CLIENT_ROLE_BROADCASTER,
+            publishCameraTrack: true,
+            autoSubscribeAudio: true,
+            autoSubscribeVideo: true,
+        };
         let erroCode = await this.rtcEngine.joinChannel(
             appAcountInfo.token,
             appAcountInfo.channelId,
-            "",
-            appAcountInfo.numberUid1
+            appAcountInfo.numberUid1,
+            options
         );
         if (erroCode !== 0) {
             this.logContent.error(" joinChannel failed, errorCode: ", erroCode);
@@ -217,6 +233,7 @@ export class MultCameraCanvas extends BaseCanvas {
                 localUid: appAcountInfo.numberUid2
             },
             {
+                clientRoleType: CLIENT_ROLE_TYPE.CLIENT_ROLE_BROADCASTER,
                 publishCameraTrack: false,
                 publishSecondaryCameraTrack: true,
                 autoSubscribeAudio: false,
@@ -242,7 +259,7 @@ export class MultCameraCanvas extends BaseCanvas {
         }
     }
 
-      async leaveChannelEx(): Promise<void> {
+    async leaveChannelEx(): Promise<void> {
         const appAcountInfo = await AppAcountInfo.instance();
         let errorCode = await this.rtcEngine.leaveChannelEx({
             channelId: appAcountInfo.channelId,
@@ -257,9 +274,17 @@ export class MultCameraCanvas extends BaseCanvas {
     }
 
     async releaseRtcEngine(): Promise<void> {
-        await this.rtcEngine.release(true);
-        this.rtcEngine = null;
-        this.videoContent.clear();
-        this.logContent.log("releaseRtcEngine success");
+        if (this.rtcEngine) {
+            //before release engine, make sure all video canvas is unbinded and all texture is destroyed, 
+            await this.videoContent.clear();
+            await this.rtcEngine.release(true);
+            this.rtcEngine = null;
+            this.logContent.log("releaseRtcEngine success");
+        }
+    }
+
+    //this is call before back main
+    async clearSelf(): Promise<void> {
+        await this.releaseRtcEngine();
     }
 }

@@ -153,10 +153,20 @@ export class MediaItem extends Component {
         this._initObserver();
     }
 
-    onDestroy() {
-
+    async clearSelf() {
+        if (this.texture && this.spriteFrame) {
+            await this.rtcEngine.setupLocalVideo({
+                uid: 0,
+                view: null,
+                sourceType: VIDEO_SOURCE_TYPE.VIDEO_SOURCE_MEDIA_PLAYER,
+                mediaPlayerId: await this._meidaPlayer.getId(),
+            });
+            this.texture.destroy();
+            this.texture = null;
+            this.spriteFrame.destroy();
+            this.spriteFrame = null;
+        }
     }
-
 
     createTextureAndAttachToSelf(): void {
         this.texture = new Texture2D();

@@ -1,4 +1,4 @@
-import { Sprite } from 'cc';
+import { Sprite, SpriteFrame, Texture2D, UITransform } from 'cc';
 import { find } from 'cc';
 import { Label } from 'cc';
 import { _decorator, Component, Node } from 'cc';
@@ -16,6 +16,14 @@ export class ScreenItem extends Component {
 
     @property(Sprite)
     public thumbImage: Sprite = null;
+
+
+    protected iconTexture: Texture2D = null;
+    protected iconFrame: SpriteFrame = null;
+
+    protected thumbTexture: Texture2D = null;
+    protected thumbFrame: SpriteFrame = null;
+
 
     @property(Label)
     public desLabel: Label = null;
@@ -50,6 +58,39 @@ export class ScreenItem extends Component {
         this.sourceType = sourceType;
         this.info = info;
         this.desLabel.string = `${ScreenCaptureSourceType[this.info.type]}, ${this.info.sourceName}, ${this.info.sourceTitle}, ${this.info.sourceId}`;
+
+        if (info.iconImage.width > 0 && info.iconImage.height > 0) {
+            this.iconTexture = new Texture2D();
+            this.iconTexture.reset({
+                width: info.iconImage.width,
+                height: info.iconImage.height,
+                format: Texture2D.PixelFormat.RGBA8888
+            });
+            this.iconTexture.uploadData(new Uint8Array(info.iconImage.buffer));
+            this.iconFrame = new SpriteFrame();
+            this.iconFrame.packable = false;
+            this.iconFrame.texture = this.iconTexture;
+            this.iconImage.spriteFrame = this.iconFrame;
+            let iconWidth = 70 * info.iconImage.width / info.iconImage.height;
+            this.iconImage.getComponent(UITransform).setContentSize(iconWidth, 70);
+        }
+
+
+        if (info.thumbImage.width > 0 && info.thumbImage.height > 0) {
+            this.thumbTexture = new Texture2D();
+            this.thumbTexture.reset({
+                width: info.thumbImage.width,
+                height: info.thumbImage.height,
+                format: Texture2D.PixelFormat.RGBA8888
+            });
+            this.thumbTexture.uploadData(new Uint8Array(info.thumbImage.buffer));
+            this.thumbFrame = new SpriteFrame();
+            this.thumbFrame.packable = false;
+            this.thumbFrame.texture = this.thumbTexture;
+            this.thumbImage.spriteFrame = this.thumbFrame;
+            let thumbWidth = 70 * info.thumbImage.width / info.thumbImage.height;
+            this.thumbImage.getComponent(UITransform).setContentSize(thumbWidth, 70);
+        }
     }
 
     get rtcEngine(): IRtcEngineEx {
@@ -69,7 +110,7 @@ export class ScreenItem extends Component {
         if (this.info.type == ScreenCaptureSourceType.ScreenCaptureSourceType_Window) {
             errroCode = await this.rtcEngine.startScreenCapture(this.sourceType, {
                 isCaptureWindow: true,
-                displayId: this.info.sourceDisplayId,
+                displayId: this.info.sourceId,
                 screenRect: { x: 0, y: 0, width: 0, height: 0 },
                 windowId: this.info.sourceId,
                 params: this.__screenCaptureParameters,
@@ -79,7 +120,7 @@ export class ScreenItem extends Component {
         else if (this.info.type == ScreenCaptureSourceType.ScreenCaptureSourceType_Screen) {
             errroCode = await this.rtcEngine.startScreenCapture(this.sourceType, {
                 isCaptureWindow: false,
-                displayId: this.info.sourceDisplayId,
+                displayId: this.info.sourceId,
                 screenRect: { x: 0, y: 0, width: 0, height: 0 },
                 windowId: this.info.sourceId,
                 params: this.__screenCaptureParameters,
@@ -110,6 +151,13 @@ export class ScreenItem extends Component {
         else {
             this.logContent.log(`stopScreenCapture success, errorCode: ${erroCode}`);
         }
+    }
+
+    onDestroy() {
+        this.iconFrame?.destroy();
+        this.iconTexture?.destroy();
+        this.thumbFrame?.destroy();
+        this.thumbTexture?.destroy();
     }
 }
 

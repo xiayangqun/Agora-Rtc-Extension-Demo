@@ -12,8 +12,10 @@ import {
     VIDEO_VIEW_SETUP_MODE,
     VIDEO_MODULE_POSITION,
     CHANNEL_PROFILE_TYPE,
+    CLIENT_ROLE_TYPE,
     AREA_CODE,
     AUDIO_SCENARIO_TYPE,
+    ChannelMediaOptions,
     VideoCanvas,
     USER_OFFLINE_REASON_TYPE,
     IVideoDeviceCollection,
@@ -23,6 +25,7 @@ import { BaseCanvas } from "../base/BaseCanvas";
 import { VideoContent } from "../prefab/VideoContent";
 import { AppAcountInfo } from "../base/AppAcountInfo";
 import { ScreenList } from "../prefab/ScreenList";
+import { IScreenCaptureSourceList } from "db://agora-rtc-extension-for-cocos-creator/agora-rtc/interface/IScreenCaptureSourceList";
 
 const { ccclass, property } = _decorator;
 
@@ -149,22 +152,28 @@ export class CameraAndScreenCanvas extends BaseCanvas {
     }
 
     async listScreen(): Promise<void> {
-        let list: ScreenCaptureSourceInfo[] = await this.rtcEngine.getScreenCaptureSources({
+        let list: IScreenCaptureSourceList = await this.rtcEngine.getScreenCaptureSources({
             width: 640,
             height: 480,
         }, {
             width: 128, height: 128
         }, true);
-        this.screenList.init(list);
+        await this.screenList.init(list);
     }
 
     async joinChannelWithUid1(): Promise<void> {
         const appAcountInfo = await AppAcountInfo.instance();
+        const options: ChannelMediaOptions = {
+            clientRoleType: CLIENT_ROLE_TYPE.CLIENT_ROLE_BROADCASTER,
+            publishCameraTrack: true,
+            autoSubscribeAudio: true,
+            autoSubscribeVideo: true,
+        };
         let erroCode = await this.rtcEngine.joinChannel(
             appAcountInfo.token,
             appAcountInfo.channelId,
-            "",
-            appAcountInfo.numberUid1
+            appAcountInfo.numberUid1,
+            options
         );
         if (erroCode !== 0) {
             this.logContent.error(" joinChannel failed, errorCode: ", erroCode);
@@ -191,10 +200,14 @@ export class CameraAndScreenCanvas extends BaseCanvas {
                 localUid: appAcountInfo.numberUid2
             },
             {
+                clientRoleType: CLIENT_ROLE_TYPE.CLIENT_ROLE_BROADCASTER,
                 publishCameraTrack: false,
                 publishScreenTrack: true,
                 autoSubscribeAudio: false,
-                autoSubscribeVideo: false
+                autoSubscribeVideo: false,
+                publishSecondaryScreenTrack: false,
+                publishThirdScreenTrack: false,
+                publishFourthScreenTrack: false,
             }
         );
         if (erroCode !== 0) {
@@ -209,8 +222,11 @@ export class CameraAndScreenCanvas extends BaseCanvas {
     async publishFirstScreen(): Promise<void> {
         const appAcountInfo = await AppAcountInfo.instance();
         let erroCode = await this.rtcEngine.updateChannelMediaOptionsEx({
+            clientRoleType: CLIENT_ROLE_TYPE.CLIENT_ROLE_BROADCASTER,
             publishScreenTrack: true,
-            publishSecondaryScreenTrack: false
+            publishSecondaryScreenTrack: false,
+            publishThirdScreenTrack: false,
+            publishFourthScreenTrack: false,
         }, {
             channelId: appAcountInfo.channelId,
             localUid: appAcountInfo.numberUid2,
@@ -226,8 +242,11 @@ export class CameraAndScreenCanvas extends BaseCanvas {
     async publishSecondScreen(): Promise<void> {
         const appAcountInfo = await AppAcountInfo.instance();
         let erroCode = await this.rtcEngine.updateChannelMediaOptionsEx({
+            clientRoleType: CLIENT_ROLE_TYPE.CLIENT_ROLE_BROADCASTER,
             publishScreenTrack: false,
-            publishSecondaryScreenTrack: true
+            publishSecondaryScreenTrack: true,
+            publishThirdScreenTrack: false,
+            publishFourthScreenTrack: false,
         }, {
             channelId: appAcountInfo.channelId,
             localUid: appAcountInfo.numberUid2,
@@ -237,6 +256,46 @@ export class CameraAndScreenCanvas extends BaseCanvas {
             this.logContent.error(" publishSecondScreen failed, errorCode: ", erroCode);
         } else {
             this.logContent.log(" publishSecondScreen success");
+        }
+    }
+
+    async publishThirdScreen(): Promise<void> {
+        const appAcountInfo = await AppAcountInfo.instance();
+        let erroCode = await this.rtcEngine.updateChannelMediaOptionsEx({
+            clientRoleType: CLIENT_ROLE_TYPE.CLIENT_ROLE_BROADCASTER,
+            publishScreenTrack: false,
+            publishSecondaryScreenTrack: false,
+            publishThirdScreenTrack: true,
+            publishFourthScreenTrack: false,
+        }, {
+            channelId: appAcountInfo.channelId,
+            localUid: appAcountInfo.numberUid2,
+        });
+
+        if (erroCode !== 0) {
+            this.logContent.error(" publishThirdScreen failed, errorCode: ", erroCode);
+        } else {
+            this.logContent.log(" publishThirdScreen success");
+        }
+    }
+
+    async publishFourthScreen(): Promise<void> {
+        const appAcountInfo = await AppAcountInfo.instance();
+        let erroCode = await this.rtcEngine.updateChannelMediaOptionsEx({
+            clientRoleType: CLIENT_ROLE_TYPE.CLIENT_ROLE_BROADCASTER,
+            publishScreenTrack: false,
+            publishSecondaryScreenTrack: false,
+            publishThirdScreenTrack: false,
+            publishFourthScreenTrack: true,
+        }, {
+            channelId: appAcountInfo.channelId,
+            localUid: appAcountInfo.numberUid2,
+        });
+
+        if (erroCode !== 0) {
+            this.logContent.error(" publishFourthScreen failed, errorCode: ", erroCode);
+        } else {
+            this.logContent.log(" publishFourthScreen success");
         }
     }
 
@@ -265,9 +324,17 @@ export class CameraAndScreenCanvas extends BaseCanvas {
     }
 
     async releaseRtcEngine(): Promise<void> {
-        await this.rtcEngine.release(true);
-        this.rtcEngine = null;
-        this.videoContent.clear();
-        this.logContent.log("releaseRtcEngine success");
+        if (this.rtcEngine) {
+            //before release engine, make sure all video canvas is unbinded and all texture is destroyed, 
+            await this.videoContent.clear();
+            await this.rtcEngine.release(true);
+            this.rtcEngine = null;
+            this.logContent.log("releaseRtcEngine success");
+        }
+    }
+
+    //this is call before back main
+    async clearSelf(): Promise<void> {
+        await this.releaseRtcEngine();
     }
 }
