@@ -109,6 +109,9 @@ export class SingleCameraCanvas extends BaseCanvas {
         else {
             this.logContent.log("initialize success");
         }
+
+        const {version, build }  = await this.rtcEngine.getVersion();
+        this.logContent.log(`rtc engine version: ${version}, build: ${build}`);
     }
 
     async startPreview(): Promise<void> {

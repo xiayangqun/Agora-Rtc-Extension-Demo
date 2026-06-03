@@ -149,6 +149,9 @@ export class MultCameraCanvas extends BaseCanvas {
         else {
             this.logContent.log("enableVideo success");
         }
+
+        const {version, build }  = await this.rtcEngine.getVersion();
+        this.logContent.log(`rtc engine version: ${version}, build: ${build}`);
     }
 
     async startFirstCameraCapture(): Promise<void> {

@@ -1,4 +1,4 @@
-import { find, Slider, Node } from 'cc';
+import { find, Slider, Node, sys, native } from 'cc';
 import { _decorator, Component } from 'cc';
 import { IMediaPlayer, IMediaPlayerSourceObserver, MEDIA_PLAYER_STATE, MEDIA_PLAYER_REASON, MEDIA_PLAYER_EVENT, PLAYER_PRELOAD_EVENT, VIDEO_SOURCE_TYPE } from 'db://agora-rtc-extension-for-cocos-creator/agora-rtc';
 import type { SrcInfo, PlayerUpdatedInfo, CacheStatistics, PlayerPlaybackStats, IRtcEngineEx } from 'db://agora-rtc-extension-for-cocos-creator/agora-rtc';
@@ -30,24 +30,24 @@ class MediaItemPlayerObserver extends IMediaPlayerSourceObserver {
     }
 
     override onPositionChanged(positionMs: number, timestampMs: number): void {
-        this._owner.logContent.log('onPositionChanged, positionMs: ', positionMs, ', timestampMs: ', timestampMs);
+        // this._owner.logContent.log('onPositionChanged, positionMs: ', positionMs, ', timestampMs: ', timestampMs);
         this._owner._onPositionUpdate(positionMs);
     }
 
     override onPlayerEvent(eventCode: MEDIA_PLAYER_EVENT, elapsedTime: number, message: string): void {
-        this._owner.logContent.log('onPlayerEvent, eventCode: ', eventCode, ', elapsedTime: ', elapsedTime, ', message: ', message);
+        // this._owner.logContent.log('onPlayerEvent, eventCode: ', eventCode, ', elapsedTime: ', elapsedTime, ', message: ', message);
     }
 
     override onMetaData(data: Uint8Array, length: number): void {
-        this._owner.logContent.log('onMetaData, length: ', length);
+        // this._owner.logContent.log('onMetaData, length: ', length);
     }
 
     override onPlayBufferUpdated(playCachedBuffer: number): void {
-        this._owner.logContent.log('onPlayBufferUpdated, playCachedBuffer: ', playCachedBuffer);
+        // this._owner.logContent.log('onPlayBufferUpdated, playCachedBuffer: ', playCachedBuffer);
     }
 
     override onPreloadEvent(src: string, event: PLAYER_PRELOAD_EVENT): void {
-        this._owner.logContent.log('onPreloadEvent, src: ', src, ', event: ', event);
+        // this._owner.logContent.log('onPreloadEvent, src: ', src, ', event: ', event);
     }
 
     override onCompleted(): void {
@@ -72,11 +72,11 @@ class MediaItemPlayerObserver extends IMediaPlayerSourceObserver {
     }
 
     override onPlayerPlaybackStats(stats: PlayerPlaybackStats): void {
-        this._owner.logContent.log('onPlayerPlaybackStats, stats: ', JSON.stringify(stats));
+        // this._owner.logContent.log('onPlayerPlaybackStats, stats: ', JSON.stringify(stats));
     }
 
     override onAudioVolumeIndication(volume: number): void {
-        this._owner.logContent.log('onAudioVolumeIndication, volume: ', volume);
+        // this._owner.logContent.log('onAudioVolumeIndication, volume: ', volume);
     }
 }
 
@@ -231,15 +231,13 @@ export class MediaItem extends Component {
     private _initObserver() {
         if (!this._meidaPlayer) return;
         this._playerObserver = new MediaItemPlayerObserver(this);
-        this._meidaPlayer.initEventHandler(this._playerObserver);
+        this._meidaPlayer.registerPlayerSourceObserver(this._playerObserver);
     }
 
     async onOpenMediaComplete() {
         this.duration = (await this._meidaPlayer.getDuration()).duration;
         this.logContent.log('onOpenMediaComplete, duration: ', this.duration);
         this.optionsBtns.forEach(btn => btn.active = true);
-
-
     }
 
     async loadVideoUrl(path: string): Promise<string> {
@@ -272,19 +270,54 @@ export class MediaItem extends Component {
 
 
     // ===================== Button methods (bind to Button.clickEvents) =====================
-
     /** Open the media file. */
-    async open0() {
-        const url = await this.loadVideoUrl("mpk0");
-        this.logContent.log('open url: ', url);
-        await this._open(url);
+    async open(event: Event, index: number) {
+        let mpkName = `mpk${index}`;
+        const nativeUrl = await this.loadVideoUrl(mpkName);
+        this.logContent.log('get nativeUrl ', nativeUrl);
+        if (sys.isNative) {
+            const sandboxUrl = await this.copyNativeUrlToSandBox(nativeUrl);
+            this.logContent.log('copied to sandbox, url: ', sandboxUrl);
+            await this._open(sandboxUrl);
+        } else {
+            await this._open(nativeUrl);
+        }
     }
 
-    async open1() {
-        const url = await this.loadVideoUrl("mpk1");
-        this.logContent.log('open url: ', url);
-        await this._open(url);
+    async copyNativeUrlToSandBox(nativeUrl: string): Promise<string> {
+        //todo 在原生平台上，直接使用 nativeUrl 可能会因为权限问题导致无法访问。需要将视频文件复制到沙箱目录下再打开。
+        // 要考虑四个原生平台的差异性来实现这个函数
+
+        if (nativeUrl.startsWith('http://') || nativeUrl.startsWith('https://')) return nativeUrl;
+        const fileUtils = native.fileUtils;
+        const writable = fileUtils.getWritablePath();
+        const name = nativeUrl.replace(/.*[\\\/]/, '');
+        const dest = writable + name;
+
+        // If already exists, return file:// path
+        if (fileUtils.isFileExist(dest)) {
+            return 'file://' + dest;
+        }
+        // Try to read source data and write to dest
+        try {
+            const data = fileUtils.getDataFromFile(nativeUrl);
+            fileUtils.writeDataToFile(data, dest);
+            return 'file://' + dest;
+
+        } catch (e) {
+            // fallback: try copyFile if exists
+            if ((fileUtils as any).copyFile) {
+                try {
+                    (fileUtils as any).copyFile(nativeUrl, dest);
+                    return 'file://' + dest;
+                } catch (e2) {
+                    // ignore and fallthrough
+                }
+            }
+        }
+        return nativeUrl;
     }
+
 
     async _open(url: string) {
         const errorCode = await this._meidaPlayer.open(url, 0);

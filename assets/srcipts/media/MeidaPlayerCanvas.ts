@@ -124,20 +124,6 @@ export class MediaPlayerCanvas extends BaseCanvas {
             this.logContent.log("initialize success");
         }
 
-        let videoDeviceManager = await this.rtcEngine.getVideoDeviceManager();
-        const collection: IVideoDeviceCollection = await videoDeviceManager.enumerateVideoDevices();
-        const count = await collection.getCount();
-        for (let i = 0; i < count; i++) {
-            const devices = await collection.getDevice(i);
-            this.logContent.log(`videoDevice ${i}: 
-                deviceIdUTF8: ${devices.deviceIdUTF8},
-                deviceNameUTF8: ${devices.deviceNameUTF8}, 
-                errorCode: ${devices.errorCode}`);
-        }
-        if (count < 2) {
-            this.logContent.error("less two camera use in this case");
-        }
-
         erroCode = await this.rtcEngine.setRtcVideoDebugViewEnabled(true);
         if (erroCode !== 0) {
             this.logContent.error("setRtcVideoDebugViewEnabled failed, errorCode: ", erroCode);
@@ -153,6 +139,9 @@ export class MediaPlayerCanvas extends BaseCanvas {
         else {
             this.logContent.log("enableVideo success");
         }
+
+        const {version, build }  = await this.rtcEngine.getVersion();
+        this.logContent.log(`rtc engine version: ${version}, build: ${build}`);
     }
 
     async joinChannel(): Promise<void> {
@@ -186,7 +175,7 @@ export class MediaPlayerCanvas extends BaseCanvas {
 
     async createMediaPlayer() {
         let mediaPlayer = await this.rtcEngine.createMediaPlayer();
-        this.mediaList.createMediaPlayerItem(mediaPlayer);
+        await this.mediaList.createMediaPlayerItem(mediaPlayer);
     }
 
     async publishCamera() {
