@@ -119,6 +119,13 @@ export class CameraAndScreenCanvas extends BaseCanvas {
         }
         this.logContent.print(LOG_CONTENT_LEVEL.INFO, "initialize success");
 
+        if (sys.isNative && sys.platform === sys.Platform.IOS) {
+            //in ios need this make cocos sound engine effect
+            erroCode = await this.rtcEngine.setParameters('{"che.audio.keep.audiosession":true}');
+            this.logContent.print(erroCode === 0 ? LOG_CONTENT_LEVEL.INFO : LOG_CONTENT_LEVEL.ERROR, "setParameters for iOS audio session, errorCode: ", erroCode);
+        }
+        
+        //in web, you can see video element in debug view
         erroCode = await this.rtcEngine.setRtcVideoDebugViewEnabled(true);
         this.logContent.print(erroCode === 0 ? LOG_CONTENT_LEVEL.INFO : LOG_CONTENT_LEVEL.ERROR, "setRtcVideoDebugViewEnabled errorCode: ", erroCode);
 
@@ -140,7 +147,7 @@ export class CameraAndScreenCanvas extends BaseCanvas {
         if (list != null) {
             await this.screenList.init(list);
         }
-        else{
+        else {
             this.logContent.print(LOG_CONTENT_LEVEL.WARNING, "getScreenCaptureSources not support in this platform :" + sys.platform);
             await this.screenList.initEmpty();
         }

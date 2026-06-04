@@ -129,6 +129,13 @@ export class MultCameraCanvas extends BaseCanvas {
         }
         this.logContent.print(LOG_CONTENT_LEVEL.INFO, "initialize success");
 
+        if (sys.isNative && sys.platform === sys.Platform.IOS) {
+            //in ios need this make cocos sound engine effect
+            erroCode = await this.rtcEngine.setParameters('{"che.audio.keep.audiosession":true}');
+            this.logContent.print(erroCode === 0 ? LOG_CONTENT_LEVEL.INFO : LOG_CONTENT_LEVEL.ERROR, "setParameters for iOS audio session, errorCode: ", erroCode);
+        }
+
+        //in web, you can see video element in debug view
         erroCode = await this.rtcEngine.setRtcVideoDebugViewEnabled(true);
         this.logContent.print(erroCode === 0 ? LOG_CONTENT_LEVEL.INFO : LOG_CONTENT_LEVEL.ERROR, "setRtcVideoDebugViewEnabled errorCode: ", erroCode);
 
@@ -201,7 +208,7 @@ export class MultCameraCanvas extends BaseCanvas {
             const deviceIdUTF8 = (await this.collection.getDevice(0)).deviceIdUTF8;
             config.deviceId = deviceIdUTF8;
         }
-        if(sys.platform === sys.Platform.IOS){
+        if (sys.platform === sys.Platform.IOS) {
             //on iOS, we use CAMERA_DIRECTION to start different camera, so we don't need to set deviceId
             config.cameraDirection = CAMERA_DIRECTION.CAMERA_REAR;
             const errorCode = await this.rtcEngine.enableMultiCamera(true, config);

@@ -1,4 +1,4 @@
-import { _decorator, Component, Prefab, instantiate } from "cc";
+import { _decorator, Component, Prefab, instantiate, sys } from "cc";
 import {
     IRtcEngineEventHandler,
     IRtcEngineEx,
@@ -109,7 +109,18 @@ export class SingleCameraCanvas extends BaseCanvas {
         }
         this.logContent.print(LOG_CONTENT_LEVEL.INFO, "initialize success");
 
-        const {version, build }  = await this.rtcEngine.getVersion();
+        if (sys.isNative && sys.platform === sys.Platform.IOS) {
+            //in ios need this make cocos sound engine effect
+            erroCode = await this.rtcEngine.setParameters('{"che.audio.keep.audiosession":true}');
+            this.logContent.print(erroCode === 0 ? LOG_CONTENT_LEVEL.INFO : LOG_CONTENT_LEVEL.ERROR, "setParameters for iOS audio session, errorCode: ", erroCode);
+        }
+
+        //in web, you can see video element in debug view
+        erroCode = await this.rtcEngine.setRtcVideoDebugViewEnabled(true);
+        this.logContent.print(erroCode === 0 ? LOG_CONTENT_LEVEL.INFO : LOG_CONTENT_LEVEL.ERROR, "setRtcVideoDebugViewEnabled errorCode: ", erroCode);
+
+
+        const { version, build } = await this.rtcEngine.getVersion();
         this.logContent.print(LOG_CONTENT_LEVEL.INFO, `rtc engine version: ${version}, build: ${build}`);
     }
 
@@ -133,8 +144,6 @@ export class SingleCameraCanvas extends BaseCanvas {
         let erroCode = await this.rtcEngine.enableVideo();
         this.logContent.print(erroCode === 0 ? LOG_CONTENT_LEVEL.INFO : LOG_CONTENT_LEVEL.ERROR, "enableVideo errorCode: ", erroCode);
 
-        erroCode = await this.rtcEngine.setRtcVideoDebugViewEnabled(true);
-        this.logContent.print(erroCode === 0 ? LOG_CONTENT_LEVEL.INFO : LOG_CONTENT_LEVEL.ERROR, "setRtcVideoDebugViewEnabled errorCode: ", erroCode);
 
         const appAcountInfo = await AppAcountInfo.instance();
         const options: ChannelMediaOptions = {
