@@ -2,7 +2,7 @@ import { find, Slider, Node, sys, native } from 'cc';
 import { _decorator, Component } from 'cc';
 import { IMediaPlayer, IMediaPlayerSourceObserver, MEDIA_PLAYER_STATE, MEDIA_PLAYER_REASON, MEDIA_PLAYER_EVENT, PLAYER_PRELOAD_EVENT, VIDEO_SOURCE_TYPE } from 'db://agora-rtc-extension-for-cocos-creator/agora-rtc';
 import type { SrcInfo, PlayerUpdatedInfo, CacheStatistics, PlayerPlaybackStats, IRtcEngineEx } from 'db://agora-rtc-extension-for-cocos-creator/agora-rtc';
-import { LogContent } from './LogContent';
+import { LogContent, LOG_CONTENT_LEVEL } from './LogContent';
 import { resources, VideoClip, Asset } from 'cc';
 import { BaseCanvas } from '../base/BaseCanvas';
 import { Label } from 'cc';
@@ -23,7 +23,7 @@ class MediaItemPlayerObserver extends IMediaPlayerSourceObserver {
     }
 
     override onPlayerSourceStateChanged(state: MEDIA_PLAYER_STATE, reason: MEDIA_PLAYER_REASON): void {
-        this._owner.logContent.log('onPlayerSourceStateChanged, ', MEDIA_PLAYER_STATE[state], MEDIA_PLAYER_REASON[reason]);
+        this._owner.logContent.print(LOG_CONTENT_LEVEL.INFO, 'onPlayerSourceStateChanged, ', MEDIA_PLAYER_STATE[state], MEDIA_PLAYER_REASON[reason]);
         if (state == MEDIA_PLAYER_STATE.PLAYER_STATE_OPEN_COMPLETED) {
             this._owner.onOpenMediaComplete();
         }
@@ -51,24 +51,24 @@ class MediaItemPlayerObserver extends IMediaPlayerSourceObserver {
     }
 
     override onCompleted(): void {
-        this._owner.logContent.log('onCompleted');
+        this._owner.logContent.print(LOG_CONTENT_LEVEL.INFO, 'onCompleted');
         this._owner._onPlaybackComplete();
     }
 
     override onAgoraCDNTokenWillExpire(): void {
-        this._owner.logContent.log('onAgoraCDNTokenWillExpire');
+        this._owner.logContent.print(LOG_CONTENT_LEVEL.INFO, 'onAgoraCDNTokenWillExpire');
     }
 
     override onPlayerSrcInfoChanged(from: SrcInfo, to: SrcInfo): void {
-        this._owner.logContent.log('onPlayerSrcInfoChanged, from: ', JSON.stringify(from), ', to: ', JSON.stringify(to));
+        this._owner.logContent.print(LOG_CONTENT_LEVEL.INFO, 'onPlayerSrcInfoChanged, from: ', JSON.stringify(from), ', to: ', JSON.stringify(to));
     }
 
     override onPlayerInfoUpdated(info: PlayerUpdatedInfo): void {
-        this._owner.logContent.log('onPlayerInfoUpdated, info: ', JSON.stringify(info));
+        this._owner.logContent.print(LOG_CONTENT_LEVEL.INFO, 'onPlayerInfoUpdated, info: ', JSON.stringify(info));
     }
 
     override onPlayerCacheStats(stats: CacheStatistics): void {
-        this._owner.logContent.log('onPlayerCacheStats, stats: ', JSON.stringify(stats));
+        this._owner.logContent.print(LOG_CONTENT_LEVEL.INFO, 'onPlayerCacheStats, stats: ', JSON.stringify(stats));
     }
 
     override onPlayerPlaybackStats(stats: PlayerPlaybackStats): void {
@@ -236,7 +236,7 @@ export class MediaItem extends Component {
 
     async onOpenMediaComplete() {
         this.duration = (await this._meidaPlayer.getDuration()).duration;
-        this.logContent.log('onOpenMediaComplete, duration: ', this.duration);
+        this.logContent.print(LOG_CONTENT_LEVEL.INFO, 'onOpenMediaComplete, duration: ', this.duration);
         this.optionsBtns.forEach(btn => btn.active = true);
     }
 
@@ -274,10 +274,10 @@ export class MediaItem extends Component {
     async open(event: Event, index: number) {
         let mpkName = `mpk${index}`;
         const nativeUrl = await this.loadVideoUrl(mpkName);
-        this.logContent.log('get nativeUrl ', nativeUrl);
+        this.logContent.print(LOG_CONTENT_LEVEL.INFO, 'get nativeUrl ', nativeUrl);
         if (sys.isNative) {
             const sandboxUrl = await this.copyNativeUrlToSandBox(nativeUrl);
-            this.logContent.log('copied to sandbox, url: ', sandboxUrl);
+            this.logContent.print(LOG_CONTENT_LEVEL.INFO, 'copied to sandbox, url: ', sandboxUrl);
             await this._open(sandboxUrl);
         } else {
             await this._open(nativeUrl);
@@ -322,10 +322,10 @@ export class MediaItem extends Component {
     async _open(url: string) {
         const errorCode = await this._meidaPlayer.open(url, 0);
         if (errorCode === 0) {
-            this.logContent.log('open success, errorCode: ', errorCode);
+            this.logContent.print(LOG_CONTENT_LEVEL.INFO, 'open success, errorCode: ', errorCode);
             this.optionsBtns.forEach(btn => btn.active = false);
         } else {
-            this.logContent.error('open failed, errorCode: ', errorCode);
+            this.logContent.print(LOG_CONTENT_LEVEL.ERROR, 'open failed, errorCode: ', errorCode);
         }
 
     }
@@ -335,9 +335,9 @@ export class MediaItem extends Component {
         if (!this._meidaPlayer) return;
         const errorCode = await this._meidaPlayer.play();
         if (errorCode === 0) {
-            this.logContent.log('play success, errorCode: ', errorCode);
+            this.logContent.print(LOG_CONTENT_LEVEL.INFO, 'play success, errorCode: ', errorCode);
         } else {
-            this.logContent.error('play failed, errorCode: ', errorCode);
+            this.logContent.print(LOG_CONTENT_LEVEL.ERROR, 'play failed, errorCode: ', errorCode);
         }
     }
 
@@ -346,9 +346,9 @@ export class MediaItem extends Component {
         if (!this._meidaPlayer) return;
         const errorCode = await this._meidaPlayer.pause();
         if (errorCode === 0) {
-            this.logContent.log('pause success, errorCode: ', errorCode);
+            this.logContent.print(LOG_CONTENT_LEVEL.INFO, 'pause success, errorCode: ', errorCode);
         } else {
-            this.logContent.error('pause failed, errorCode: ', errorCode);
+            this.logContent.print(LOG_CONTENT_LEVEL.ERROR, 'pause failed, errorCode: ', errorCode);
         }
     }
 
@@ -357,9 +357,9 @@ export class MediaItem extends Component {
         if (!this._meidaPlayer) return;
         const errorCode = await this._meidaPlayer.resume();
         if (errorCode === 0) {
-            this.logContent.log('resume success, errorCode: ', errorCode);
+            this.logContent.print(LOG_CONTENT_LEVEL.INFO, 'resume success, errorCode: ', errorCode);
         } else {
-            this.logContent.error('resume failed, errorCode: ', errorCode);
+            this.logContent.print(LOG_CONTENT_LEVEL.ERROR, 'resume failed, errorCode: ', errorCode);
         }
     }
 
@@ -368,9 +368,9 @@ export class MediaItem extends Component {
         if (!this._meidaPlayer) return;
         const errorCode = await this._meidaPlayer.stop();
         if (errorCode === 0) {
-            this.logContent.log('stop success, errorCode: ', errorCode);
+            this.logContent.print(LOG_CONTENT_LEVEL.INFO, 'stop success, errorCode: ', errorCode);
         } else {
-            this.logContent.error('stop failed, errorCode: ', errorCode);
+            this.logContent.print(LOG_CONTENT_LEVEL.ERROR, 'stop failed, errorCode: ', errorCode);
         }
         if (this.seekSlider) this.seekSlider.progress = 0;
         this._duration = 0;
@@ -406,9 +406,9 @@ export class MediaItem extends Component {
         const seekPos = Math.floor(clampedValue * this._duration);
         const errorCode = await this._meidaPlayer.seek(seekPos);
         if (errorCode === 0) {
-            this.logContent.log('seek success, pos: ', seekPos, 'ms, errorCode: ', errorCode);
+            this.logContent.print(LOG_CONTENT_LEVEL.INFO, 'seek success, pos: ', seekPos, 'ms, errorCode: ', errorCode);
         } else {
-            this.logContent.error('seek failed, pos: ', seekPos, 'ms, errorCode: ', errorCode);
+            this.logContent.print(LOG_CONTENT_LEVEL.ERROR, 'seek failed, pos: ', seekPos, 'ms, errorCode: ', errorCode);
         }
         this._isSeeking = false;
     }

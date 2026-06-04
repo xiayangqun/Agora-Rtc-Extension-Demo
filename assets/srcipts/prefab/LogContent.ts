@@ -1,14 +1,20 @@
-import { instantiate } from 'cc';
+import { instantiate, Prefab } from 'cc';
 import { Label } from 'cc';
 import { Color } from 'cc';
 import { UITransform, Widget, view, CCFloat, _decorator, Component, Node, ScrollView } from 'cc';
 const { ccclass, property } = _decorator;
 
+export enum LOG_CONTENT_LEVEL {
+    INFO,
+    WARNING,
+    ERROR
+}
+
 @ccclass('LogContent')
 export class LogContent extends Component {
 
-    @property(Node)
-    public modelLabel: Node = null;
+    @property(Prefab)
+    public modelLabel: Prefab = null;
 
     @property(Node)
     public logContent: Node = null;
@@ -28,7 +34,8 @@ export class LogContent extends Component {
 
     start() {
         const transform = this.node.getComponent(UITransform);
-        transform.width = view.getVisibleSize().width - this.leftPadding;
+        let width = view.getVisibleSize().width - this.leftPadding;
+        transform.width = Math.max(200, width);
         this.updateWidgetRecursively(this.node);
         this.logContentWidth = this.logContent.getComponent(UITransform).width;
     }
@@ -69,19 +76,21 @@ export class LogContent extends Component {
         }
     }
 
-    log(...args: any[]) {
-        this.addLabel(args.join(' '), LogContent.INFO_COLOR);
-        console.log(LogContent.MOUDLE_NAME, ...args);
-    }
-
-    warn(...args: any[]) {
-        this.addLabel(args.join(' '), LogContent.WARNING_COLOR);
-        console.warn(LogContent.MOUDLE_NAME, ...args);
-    }
-
-    error(...args: any[]) {
-        this.addLabel(args.join(' '), LogContent.ERROR_COLOR);
-        console.error(LogContent.MOUDLE_NAME, ...args);
+    print(level: LOG_CONTENT_LEVEL, ...args: any[]) {
+        switch (level) {
+            case LOG_CONTENT_LEVEL.INFO:
+                this.addLabel(args.join(' '), LogContent.INFO_COLOR);
+                console.log(LogContent.MOUDLE_NAME, ...args);
+                break;
+            case LOG_CONTENT_LEVEL.WARNING:
+                this.addLabel(args.join(' '), LogContent.WARNING_COLOR);
+                console.warn(LogContent.MOUDLE_NAME, ...args);
+                break;
+            case LOG_CONTENT_LEVEL.ERROR:
+                this.addLabel(args.join(' '), LogContent.ERROR_COLOR);
+                console.error(LogContent.MOUDLE_NAME, ...args);
+                break;
+        }
     }
 }
 

@@ -5,6 +5,7 @@ import { ScreenCaptureSourceInfo, VIDEO_SOURCE_TYPE } from 'db://agora-rtc-exten
 import { ScreenItem } from './ScreenItem';
 import { IScreenCaptureSourceList } from 'db://agora-rtc-extension-for-cocos-creator/agora-rtc/interface/IScreenCaptureSourceList';
 import { BaseCanvas } from '../base/BaseCanvas';
+import { LOG_CONTENT_LEVEL } from './LogContent';
 const { ccclass, property } = _decorator;
 
 @ccclass('ScreenList')
@@ -31,7 +32,7 @@ export class ScreenList extends Component {
 
         let count = await list.getCount();
         if (count > 4) {
-            this.logContent.log(`there is ${count} screen capture source, only show 4 of them`);
+            this.logContent.print(LOG_CONTENT_LEVEL.INFO, `there is ${count} screen capture source, only show 4 of them`);
             count = 4;
         }
 
@@ -44,5 +45,10 @@ export class ScreenList extends Component {
         }
     }
 
+    async initEmpty() {
+        let screenItem = instantiate(this.screenItemPrefab);
+        screenItem.parent = this.container;
+        screenItem.getComponent(ScreenItem).init(null, null);
+    }
 }
 
