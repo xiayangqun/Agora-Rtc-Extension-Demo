@@ -113,7 +113,7 @@ export class MediaPlayerCanvas extends BaseCanvas {
             },
             useExternalEglContext: false,
             domainLimit: false,
-            autoRegisterAgoraExtensions: false,
+            autoRegisterAgoraExtensions: true,
         };
         let erroCode = 0;
         erroCode = await this.rtcEngine.initialize(config);

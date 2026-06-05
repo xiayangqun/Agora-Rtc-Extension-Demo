@@ -137,34 +137,18 @@ export class CameraAndScreenCanvas extends BaseCanvas {
     }
 
     async listScreen(): Promise<void> {
-        const rtcEngineAny = this.rtcEngine as any;
-        const jsbAgora = (globalThis as any).jsb?.agora;
-        const nativeEngineBridge = jsbAgora?.RtcEngineExBridge;
-
-        this.logContent.print(LOG_CONTENT_LEVEL.INFO, `[screen debug] sys.isNative=${sys.isNative}, sys.platform=${sys.platform}, windowsPlatform=${(sys.Platform as any).WINDOWS}`);
-        this.logContent.print(LOG_CONTENT_LEVEL.INFO, `[screen debug] engineCtor=${rtcEngineAny?.constructor?.name}, getScreenCaptureSources=${typeof rtcEngineAny?.getScreenCaptureSources}`);
-        this.logContent.print(LOG_CONTENT_LEVEL.INFO, `[screen debug] jsb.agora=${!!jsbAgora}, native getScreenCaptureSources=${typeof nativeEngineBridge?.prototype?.getScreenCaptureSources}`);
-
-        let list: IScreenCaptureSourceList = null;
-        try {
-            list = await this.rtcEngine.getScreenCaptureSources({
-                width: 640,
-                height: 480,
-            }, {
-                width: 128, height: 128
-            }, true);
-        }
-        catch (error) {
-            this.logContent.print(LOG_CONTENT_LEVEL.ERROR, "[screen debug] getScreenCaptureSources throw error: ", error);
-        }
+        let list: IScreenCaptureSourceList = await this.rtcEngine.getScreenCaptureSources({
+            width: 640,
+            height: 480,
+        }, {
+            width: 128, height: 128
+        }, true);
 
         if (list != null) {
-            const count = await list.getCount();
-            this.logContent.print(LOG_CONTENT_LEVEL.INFO, `[screen debug] getScreenCaptureSources success, count=${count}`);
             await this.screenList.init(list);
         }
         else {
-            this.logContent.print(LOG_CONTENT_LEVEL.WARNING, "getScreenCaptureSources returned null, platform :" + sys.platform);
+            this.logContent.print(LOG_CONTENT_LEVEL.WARNING, "getScreenCaptureSources not support in this platform :" + sys.platform);
             await this.screenList.initEmpty();
         }
 
