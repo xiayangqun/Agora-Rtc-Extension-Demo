@@ -69,9 +69,17 @@ The main scene serves as the entry point of the application. It provides:
    npm run build
    ```
 5. Open the project in Cocos Creator, go to **Extensions** panel, click **Refresh**, and **activate both plugins**
-6. Run the `main` scene
-7. Click the permission buttons to grant device access
-8. Select a demo scenario and click "Go" to navigate
+6. Edit `assets/resources/appid.json` to configure your Agora App ID and Token:
+   ```json
+   {
+     "appId": "YOUR_APP_ID",
+     "token": "YOUR_TOKEN"
+   }
+   ```
+   Get your App ID and Token from the [Agora Console](https://console.agora.io/)
+7. Run the `main` scene
+8. Click the permission buttons to grant device access
+9. Select a demo scenario and click "Go" to navigate
 
 ---
 
@@ -140,9 +148,17 @@ The main scene serves as the entry point of the application. It provides:
    npm run build
    ```
 5. 使用 Cocos Creator 打开项目，进入**扩展**面板，点击**刷新**，**激活两个插件**
-6. 运行 `main` 场景
-7. 点击权限按钮授予设备访问权限
-8. 选择一个演示场景，点击 "Go" 跳转
+6. 修改 `assets/resources/appid.json` 配置你的 Agora App ID 和 Token：
+   ```json
+   {
+     "appId": "YOUR_APP_ID",
+     "token": "YOUR_TOKEN"
+   }
+   ```
+   从 [Agora Console](https://console.shengwang.cn/) 获取你的 App ID 和 Token
+7. 运行 `main` 场景
+8. 点击权限按钮授予设备访问权限
+9. 选择一个演示场景，点击 "Go" 跳转
 
 ---
 
