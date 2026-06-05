@@ -42,7 +42,7 @@ function openWindowsSettings(url: string): boolean {
 }
 
 function logNoNeed(): void {
-    console.info("暂时不需要");
+    console.info("Not Needed");
 }
 
 export function requestCameraPermission(): boolean {
