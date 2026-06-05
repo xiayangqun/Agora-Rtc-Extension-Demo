@@ -9,6 +9,9 @@
     "paths": {
       "db://agora-rtc-extension-for-cocos-creator/*": [
         "./extensions/agora-rtc-extension-for-cocos-creator/assets/*"
+      ],
+       "db://agora-demo-native-permissions/*": [
+        "./extensions/agora-demo-native-permissions/assets/*"
       ]
     }
   }

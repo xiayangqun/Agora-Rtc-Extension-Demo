@@ -6,6 +6,7 @@ import { IRtcEngineEx, ScreenCaptureParameters, ScreenCaptureParameters2, Screen
 import { BaseCanvas } from '../base/BaseCanvas';
 import { LogContent, LOG_CONTENT_LEVEL } from '../prefab/LogContent';
 import { VideoContent } from './VideoContent';
+import { getMediaProjectionHandle, requestScreenCapturePermission } from 'db://agora-demo-native-permissions/agora-demo-native-permissions';
 const { ccclass, property } = _decorator;
 
 @ccclass('ScreenItem')
@@ -124,9 +125,9 @@ export class ScreenItem extends Component {
     async startScreenShare(): Promise<void> {
         if (this.info != null) {
             //this is desktop platform, start screen capture with source id
-            let errroCode = 0;
+            let errorCode = 0;
             if (this.info.type == ScreenCaptureSourceType.ScreenCaptureSourceType_Window) {
-                errroCode = await this.rtcEngine.startScreenCapture(this.sourceType, {
+                errorCode = await this.rtcEngine.startScreenCapture(this.sourceType, {
                     isCaptureWindow: true,
                     displayId: this.info.sourceId,
                     screenRect: { x: 0, y: 0, width: 0, height: 0 },
@@ -136,7 +137,7 @@ export class ScreenItem extends Component {
                 });
             }
             else if (this.info.type == ScreenCaptureSourceType.ScreenCaptureSourceType_Screen) {
-                errroCode = await this.rtcEngine.startScreenCapture(this.sourceType, {
+                errorCode = await this.rtcEngine.startScreenCapture(this.sourceType, {
                     isCaptureWindow: false,
                     displayId: this.info.sourceId,
                     screenRect: { x: 0, y: 0, width: 0, height: 0 },
@@ -145,8 +146,8 @@ export class ScreenItem extends Component {
                     regionRect: { x: 0, y: 0, width: 0, height: 0 }
                 });
             }
-            this.logContent.print(errroCode === 0 ? LOG_CONTENT_LEVEL.INFO : LOG_CONTENT_LEVEL.ERROR, `startScreenCapture errorCode: ${errroCode}`);
-            if (errroCode === 0) {
+            this.logContent.print(errorCode === 0 ? LOG_CONTENT_LEVEL.INFO : LOG_CONTENT_LEVEL.ERROR, `startScreenCapture errorCode: ${errorCode}`);
+            if (errorCode === 0) {
                 this.videoContent?.createVideoItem(this.rtcEngine, {
                     uid: 0,
                     view: null,
@@ -176,8 +177,16 @@ export class ScreenItem extends Component {
                     contentHint: VIDEO_CONTENT_HINT.CONTENT_HINT_DETAILS,
                 }
             };
-            let errorCode = this.rtcEngine.startScreenCapture(parameters2);
-            this.logContent.print(LOG_CONTENT_LEVEL.INFO, "StartScreenCapture errorCode: " + errorCode);
+            let errorCode = await this.rtcEngine.startScreenCapture(parameters2);
+            this.logContent.print(errorCode === 0 ? LOG_CONTENT_LEVEL.INFO : LOG_CONTENT_LEVEL.ERROR, "StartScreenCapture errorCode: " + errorCode);
+            if (errorCode === 0) {
+                this.videoContent?.createVideoItem(this.rtcEngine, {
+                    uid: 0,
+                    view: null,
+                    sourceType: VIDEO_SOURCE_TYPE.VIDEO_SOURCE_SCREEN_PRIMARY,
+                    mediaPlayerId: 0,
+                }, null);
+            }
         }
     }
 
@@ -186,7 +195,7 @@ export class ScreenItem extends Component {
             let erroCode = await this.rtcEngine.stopScreenCapture(this.sourceType);
             this.logContent.print(erroCode === 0 ? LOG_CONTENT_LEVEL.INFO : LOG_CONTENT_LEVEL.ERROR, `stopScreenCapture errorCode: ${erroCode}`);
         }
-        else{
+        else {
             let errorCode = await this.rtcEngine.stopScreenCapture();
             this.logContent.print(errorCode === 0 ? LOG_CONTENT_LEVEL.INFO : LOG_CONTENT_LEVEL.ERROR, `stopScreenCapture errorCode: ${errorCode}`);
         }
@@ -199,4 +208,3 @@ export class ScreenItem extends Component {
         this.thumbTexture?.destroy();
     }
 }
-

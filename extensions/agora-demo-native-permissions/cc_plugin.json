@@ -1,0 +1,14 @@
+{
+    "name": "agora-demo-native-permissions",
+    "version": "1.0.0",
+    "author": "Agora",
+    "description": "Native permission helpers for the Agora RTC demo",
+    "engine-version": ">=3.8.0",
+    "modules": [
+        {
+            "target": "AgoraDemoNativePermissions",
+            "depends": []
+        }
+    ],
+    "platforms": ["mac", "ios"]
+}
