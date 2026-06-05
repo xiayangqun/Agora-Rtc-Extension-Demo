@@ -293,23 +293,24 @@ export class MediaItem extends Component {
         const writable = fileUtils.getWritablePath();
         const name = nativeUrl.replace(/.*[\\\/]/, '');
         const dest = writable + name;
+        const openUrl = this.toMediaPlayerUrl(dest);
 
-        // If already exists, return file:// path
+        // If already exists, return the path format expected by the native media player.
         if (fileUtils.isFileExist(dest)) {
-            return 'file://' + dest;
+            return openUrl;
         }
         // Try to read source data and write to dest
         try {
             const data = fileUtils.getDataFromFile(nativeUrl);
             fileUtils.writeDataToFile(data, dest);
-            return 'file://' + dest;
+            return openUrl;
 
         } catch (e) {
             // fallback: try copyFile if exists
             if ((fileUtils as any).copyFile) {
                 try {
                     (fileUtils as any).copyFile(nativeUrl, dest);
-                    return 'file://' + dest;
+                    return openUrl;
                 } catch (e2) {
                     // ignore and fallthrough
                 }
@@ -318,9 +319,21 @@ export class MediaItem extends Component {
         return nativeUrl;
     }
 
+    toMediaPlayerUrl(path: string): string {
+        if (sys.isNative && sys.platform === 'WIN32') {
+            return path.startsWith('file://') ? path.substring('file://'.length) : path;
+        }
+        if (path.startsWith('file://') || path.startsWith('http://') || path.startsWith('https://')) {
+            return path;
+        }
+        return 'file://' + path;
+    }
+
 
     async _open(url: string) {
-        const errorCode = await this._meidaPlayer.open(url, 0);
+        const openUrl = this.toMediaPlayerUrl(url);
+        this.logContent.print(LOG_CONTENT_LEVEL.INFO, 'media player open url: ', openUrl);
+        const errorCode = await this._meidaPlayer.open(openUrl, 0);
         if (errorCode === 0) {
             this.logContent.print(LOG_CONTENT_LEVEL.INFO, 'open success, errorCode: ', errorCode);
             this.optionsBtns.forEach(btn => btn.active = false);
