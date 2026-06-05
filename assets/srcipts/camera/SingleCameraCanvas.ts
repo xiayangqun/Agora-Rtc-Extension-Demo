@@ -1,4 +1,4 @@
-import { _decorator, Component, Prefab, instantiate } from "cc";
+import { _decorator, Component, Prefab, instantiate, sys } from "cc";
 import {
     IRtcEngineEventHandler,
     IRtcEngineEx,
@@ -12,8 +12,10 @@ import {
     VIDEO_VIEW_SETUP_MODE,
     VIDEO_MODULE_POSITION,
     CHANNEL_PROFILE_TYPE,
+    CLIENT_ROLE_TYPE,
     AREA_CODE,
     AUDIO_SCENARIO_TYPE,
+    ChannelMediaOptions,
     VideoCanvas,
     USER_OFFLINE_REASON_TYPE
 } from "db://agora-rtc-extension-for-cocos-creator/agora-rtc";
@@ -22,6 +24,7 @@ import { BaseCanvas } from "../base/BaseCanvas";
 import { app } from "electron";
 import { VideoContent } from "../prefab/VideoContent";
 import { AppAcountInfo } from "../base/AppAcountInfo";
+import { LOG_CONTENT_LEVEL } from "../prefab/LogContent";
 
 const { ccclass, property } = _decorator;
 
@@ -44,7 +47,7 @@ class SingleCameraCanvasRtcEngineEventHandler extends IRtcEngineEventHandler {
     }
 
     onUserJoined(connection: RtcConnection, remoteUid: number, elapsed: number): void {
-        this._cameraCanvas.logContent.log("onUserJoined, remoteUid: ", remoteUid);
+        this._cameraCanvas.logContent.print(LOG_CONTENT_LEVEL.INFO, "onUserJoined, remoteUid: ", remoteUid);
         let canvas: VideoCanvas = {
             uid: remoteUid,
             view: null,
@@ -55,11 +58,11 @@ class SingleCameraCanvasRtcEngineEventHandler extends IRtcEngineEventHandler {
     }
 
     onLeaveChannel(connection: RtcConnection): void {
-        this._cameraCanvas.logContent.log("onLeaveChannel, connection: ", connection);
+        this._cameraCanvas.logContent.print(LOG_CONTENT_LEVEL.INFO, "onLeaveChannel, connection: ", connection);
     }
 
     onUserOffline(connection: RtcConnection, remoteUid: number, reason: USER_OFFLINE_REASON_TYPE): void {
-        this._cameraCanvas.logContent.log("onUserOffline, remoteUid: ", remoteUid);
+        this._cameraCanvas.logContent.print(LOG_CONTENT_LEVEL.INFO, "onUserOffline, remoteUid: ", remoteUid);
         let canvas: VideoCanvas = {
             uid: remoteUid,
             view: null,
@@ -101,18 +104,30 @@ export class SingleCameraCanvas extends BaseCanvas {
         let erroCode = 0;
         erroCode = await this.rtcEngine.initialize(config);
         if (erroCode !== 0) {
-            this.logContent.error("initialize failed, errorCode: ", erroCode);
+            this.logContent.print(LOG_CONTENT_LEVEL.ERROR, "initialize failed, errorCode: ", erroCode);
             return;
         }
-        else {
-            this.logContent.log("initialize success");
+        this.logContent.print(LOG_CONTENT_LEVEL.INFO, "initialize success");
+
+        if (sys.isNative && sys.platform === sys.Platform.IOS) {
+            //in ios need this make cocos sound engine effect
+            erroCode = await this.rtcEngine.setParameters('{"che.audio.keep.audiosession":true}');
+            this.logContent.print(erroCode === 0 ? LOG_CONTENT_LEVEL.INFO : LOG_CONTENT_LEVEL.ERROR, "setParameters for iOS audio session, errorCode: ", erroCode);
         }
+
+        //in web, you can see video element in debug view
+        erroCode = await this.rtcEngine.setRtcVideoDebugViewEnabled(true);
+        this.logContent.print(erroCode === 0 ? LOG_CONTENT_LEVEL.INFO : LOG_CONTENT_LEVEL.ERROR, "setRtcVideoDebugViewEnabled errorCode: ", erroCode);
+
+
+        const { version, build } = await this.rtcEngine.getVersion();
+        this.logContent.print(LOG_CONTENT_LEVEL.INFO, `rtc engine version: ${version}, build: ${build}`);
     }
 
     async startPreview(): Promise<void> {
         let errorCode = await this.rtcEngine.startPreview();
         if (errorCode == 0) {
-            this.logContent.log("startPreview success");
+            this.logContent.print(LOG_CONTENT_LEVEL.INFO, "startPreview success");
             this.videoContent.createVideoItem(this.rtcEngine, {
                 uid: 0,
                 view: null,
@@ -121,57 +136,53 @@ export class SingleCameraCanvas extends BaseCanvas {
             }, null);
         }
         else {
-            this.logContent.error("startPreview failed, errorCode: ", errorCode);
+            this.logContent.print(LOG_CONTENT_LEVEL.ERROR, "startPreview failed, errorCode: ", errorCode);
         }
     }
 
     async joinChannel(): Promise<void> {
         let erroCode = await this.rtcEngine.enableVideo();
-        if (erroCode !== 0) {
-            this.logContent.error(" enableVideo failed, errorCode: ", erroCode);
-        }
-        else {
-            this.logContent.log("enableVideo success");
-        }
+        this.logContent.print(erroCode === 0 ? LOG_CONTENT_LEVEL.INFO : LOG_CONTENT_LEVEL.ERROR, "enableVideo errorCode: ", erroCode);
 
-        erroCode = await this.rtcEngine.setRtcVideoDebugViewEnabled(true);
-        if (erroCode !== 0) {
-            this.logContent.error("setRtcVideoDebugViewEnabled failed, errorCode: ", erroCode);
-        }
-        else {
-            this.logContent.log("setRtcVideoDebugViewEnabled success");
-        }
 
         const appAcountInfo = await AppAcountInfo.instance();
+        const options: ChannelMediaOptions = {
+            clientRoleType: CLIENT_ROLE_TYPE.CLIENT_ROLE_BROADCASTER,
+            publishCameraTrack: true,
+            publishMicrophoneTrack: true,
+            autoSubscribeAudio: true,
+            autoSubscribeVideo: true,
+        };
         erroCode = await this.rtcEngine.joinChannel(
             appAcountInfo.token,
             appAcountInfo.channelId,
-            "",
-            appAcountInfo.numberUid1
+            appAcountInfo.numberUid1,
+            options
         );
         if (erroCode !== 0) {
-            this.logContent.error(" joinChannel failed, errorCode: ", erroCode);
+            this.logContent.print(LOG_CONTENT_LEVEL.ERROR, "joinChannel failed, errorCode: ", erroCode);
             return;
         }
-        else {
-            this.logContent.log(" joinChannel success");
-        }
+        this.logContent.print(LOG_CONTENT_LEVEL.INFO, "joinChannel success");
     }
 
     async leaveChannel(): Promise<void> {
         let errorCode = await this.rtcEngine.leaveChannel();
-        if (errorCode !== 0) {
-            this.logContent.error("leaveChannel failed, errorCode: ", errorCode);
-        }
-        else {
-            this.logContent.log(" leaveChannel success");
-        }
+        this.logContent.print(errorCode === 0 ? LOG_CONTENT_LEVEL.INFO : LOG_CONTENT_LEVEL.ERROR, "leaveChannel errorCode: ", errorCode);
     }
 
     async releaseRtcEngine(): Promise<void> {
-        await this.rtcEngine.release(true);
-        this.rtcEngine = null;
-        this.videoContent.clear();
-        this.logContent.log("releaseRtcEngine success");
+        if (this.rtcEngine) {
+            //before release engine, make sure all video canvas is unbinded and all texture is destroyed, 
+            await this.videoContent.clear();
+            await this.rtcEngine.release(true);
+            this.rtcEngine = null;
+            this.logContent.print(LOG_CONTENT_LEVEL.INFO, "releaseRtcEngine success");
+        }
+    }
+
+    //this is call before back main
+    async clearSelf(): Promise<void> {
+        await this.releaseRtcEngine();
     }
 }

@@ -26,3 +26,5 @@ extensions/extension-auto-refresh
 .creator
 .codegraph
 .claude
+.omo
+extensions/agora-demo-native-permissions/dist

@@ -58,11 +58,12 @@ export class VideoItem extends Component {
             rtcEngine.setupLocalVideo(canvas, (width, height) => {
                 this.resize(width, height);
             });
+            this.attachTextureToMeshMaterial();
         }
         else {
             //is remote video canvas
             this.belongLabel.string = "Remote";
-           
+
             this.createTextureAndAttachToSelf();
             canvas.view = this.texture;
             if (connection) {
@@ -70,26 +71,43 @@ export class VideoItem extends Component {
                 rtcEngine.setupRemoteVideoEx(canvas, connection, (width, height) => {
                     this.resize(width, height);
                 });
+                this.attachTextureToMeshMaterial();
             } else {
                 this.infoLabel.string = `main UID: ${canvas.uid}`;
                 rtcEngine.setupRemoteVideo(canvas, (width, height) => {
                     this.resize(width, height);
                 });
+                this.attachTextureToMeshMaterial();
             }
         }
     }
 
+
+    clearSelf(){
+        this.unsetupVideoCanvas(this.canvasClone, this.connectionClone);
+    }
+
     unsetupVideoCanvas(canvas: VideoCanvas, connection?: RtcConnection) {
-        canvas.view = null;
-        if (canvas.uid == 0) {
-            this.rtcEngine.setupLocalVideo(canvas);
-        } else {
-            if (connection) {
-                this.rtcEngine.setupRemoteVideoEx(canvas, connection);
+        if (this.texture && this.spriteFrame) {
+            canvas.view = null;
+            if (canvas.uid == 0) {
+                this.rtcEngine.setupLocalVideo(canvas);
             } else {
-                this.rtcEngine.setupRemoteVideo(canvas);
+                if (connection) {
+                    this.rtcEngine.setupRemoteVideoEx(canvas, connection);
+                } else {
+                    this.rtcEngine.setupRemoteVideo(canvas);
+                }
             }
+            this.texture.destroy();
+            this.texture = null;
+            this.spriteFrame.destroy();
+            this.spriteFrame = null;
         }
+    }
+
+    onDestroy() {
+        this.clearSelf();
     }
 
     isSameVideoItem(canvas: VideoCanvas, connection?: RtcConnection): boolean {
@@ -119,7 +137,7 @@ export class VideoItem extends Component {
             return false;
         }
 
-        if(connection != null && this.connectionClone == null){
+        if (connection != null && this.connectionClone == null) {
             return false;
         }
         return true;
@@ -135,6 +153,9 @@ export class VideoItem extends Component {
         this.spriteFrame.packable = false;
 
         this.videoSprite.spriteFrame = this.spriteFrame;
+    }
+
+    attachTextureToMeshMaterial(): void {
         this.material = this.videoMeshRenderer.getMaterialInstance(0);
         this.material.setProperty("mainTexture", this.texture);
     }
@@ -168,10 +189,5 @@ export class VideoItem extends Component {
         spriteTrans.width = spriteTrans.height * width / height;
 
         this.material.setProperty("mainTexture", this.texture);
-    }
-
-    protected onDestroy(): void {
-        this.spriteFrame?.destroy();
-        this.texture?.destroy();
     }
 }

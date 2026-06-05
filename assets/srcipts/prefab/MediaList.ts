@@ -13,10 +13,18 @@ export class MediaList extends Component {
     @property(Node)
     public container: Node = null;
 
-    createMediaPlayerItem(mediaPlayer: IMediaPlayer) {
+    async createMediaPlayerItem(mediaPlayer: IMediaPlayer) {
         const item = instantiate(this.mediaItemPrefab);
-        item.getComponent(MediaItem).init(mediaPlayer);
+        await item.getComponent(MediaItem).init(mediaPlayer);
         item.parent = this.container;
+    }
+
+    async clear() {
+        for (let i = 0; i < this.container.children.length; i++) {
+            const child = this.container.children[i];
+            await child.getComponent(MediaItem).clearSelf();
+        }
+        this.container.removeAllChildren();
     }
 }
 
