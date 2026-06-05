@@ -38,38 +38,40 @@ The main scene serves as the entry point of the application. It provides:
 |----------|:-------:|:---:|:-------:|:-----:|:--------------:|
 | **Single Camera** | ✅ | ✅ | ✅ | ✅ | ✅ |
 | **Multi Camera** | ❌ | ⚠️ ¹ | ✅ | ✅ | ✅ |
-| **Camera + Screen Share** | ✅ | ⚠️ ² | ✅ | ✅ | ✅ |
+| **Camera + Screen Share** | ✅ | ⚠️ ² | ✅ | ⚠️ ³ | ✅ |
 | **Media Player** | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 > **⚠️ Notes:**
 > - ¹ **Multi Camera** on iOS requires iPhone XR or later, with iOS 13.0 or above.
 > - ² **Screen Sharing** on iOS requires additional setup for Broadcast Upload Extension. See [Agora iOS Screen Sharing Documentation](https://docs-legacy.agora.io/en/Video/screensharing_ios?platform=iOS).
-
-### macOS Screen Sharing Permission Troubleshooting
-
-If you can see the screen window icons and thumbnails in the screen sharing list on macOS, but the game displays a black screen after clicking "Start", it means the screen sharing permission has not been properly granted. Follow these steps to resolve the issue:
-
-1. **Stop running the project in Xcode**
-2. **Open System Settings** → **Privacy & Security** → **Screen Sharing**
-3. **Find** `Agora-Rtc-Extension-Demo-desktop` and **remove it** from the list
-4. **Click the plus button (+)** to re-add it, using the following path:
-   ```
-   <your_project_path>/build/mac/proj/Debug/Agora-Rtc-Extension-Demo-desktop
-   ```
-5. **Re-run the project in Xcode**
-6. **Enter the main scene** and click the **Screen permission button**
-7. If the Xcode log shows successful authorization and **no system permission dialog appears**, the permission has been correctly granted
-8. You can now enter the screen sharing case to test
-
-> **Note:** If the system still shows a permission dialog, the permission was not properly granted. Please repeat the steps above.
+> - ³ **Screen Sharing on macOS**: If you can see the screen window icons and thumbnails but get a black screen after clicking "Start", the permission was not properly granted. To fix: Stop Xcode → System Settings → Privacy & Security → Screen Sharing → Remove `Agora-Rtc-Extension-Demo-desktop` → Click (+) to re-add from `<your_project_path>/build/mac/proj/Debug/Agora-Rtc-Extension-Demo-desktop` → Re-run Xcode → Enter main scene → Click Screen permission button → If Xcode log shows success and no system dialog appears, permission is granted.
 
 ### Quick Start
 
 1. Clone this repository
-2. Open the project in Cocos Creator (>= 3.8.8)
-3. Run the `main` scene
-4. Click the permission buttons to grant device access
-5. Select a demo scenario and click "Go" to navigate
+2. Clone the [Agora RTC Extension](https://github.com/xiayangqun/agora-rtc-extension-for-cocos-creator) plugin into the `extensions` directory and checkout the `main` branch:
+   ```bash
+   cd extensions
+   git clone https://github.com/xiayangqun/agora-rtc-extension-for-cocos-creator.git
+   cd agora-rtc-extension-for-cocos-creator
+   git checkout main
+   ```
+3. Build the Agora RTC Extension plugin:
+   ```bash
+   cd extensions/agora-rtc-extension-for-cocos-creator
+   npm install
+   npm run build
+   ```
+4. Build the native permissions plugin:
+   ```bash
+   cd extensions/agora-demo-native-permissions
+   npm install
+   npm run build
+   ```
+5. Open the project in Cocos Creator, go to **Extensions** panel, click **Refresh**, and **activate both plugins**
+6. Run the `main` scene
+7. Click the permission buttons to grant device access
+8. Select a demo scenario and click "Go" to navigate
 
 ---
 
@@ -107,38 +109,40 @@ If you can see the screen window icons and thumbnails in the screen sharing list
 |------|:-------:|:---:|:-------:|:-----:|:--------------:|
 | **单摄像头 (Single Camera)** | ✅ | ✅ | ✅ | ✅ | ✅ |
 | **多摄像头 (Multi Camera)** | ❌ | ⚠️ ¹ | ✅ | ✅ | ✅ |
-| **摄像头 + 屏幕共享 (Camera + Screen Share)** | ✅ | ⚠️ ² | ✅ | ✅ | ✅ |
+| **摄像头 + 屏幕共享 (Camera + Screen Share)** | ✅ | ⚠️ ² | ✅ | ⚠️ ³ | ✅ |
 | **媒体播放器 (Media Player)** | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 > **⚠️ 说明：**
 > - ¹ **多摄像头** 在 iOS 上需要 iPhone XR 或更高机型，且系统版本需 iOS 13.0 或以上。
 > - ² **屏幕共享** 在 iOS 上需要额外配置 Broadcast Upload Extension。详见 [Agora iOS 屏幕共享文档](https://docs-legacy.agora.io/en/Video/screensharing_ios?platform=iOS)。
-
-### macOS 屏幕共享权限问题排查
-
-如果在 macOS 上使用屏幕共享功能时，已经获取到了屏幕窗口的图标和缩略图，但点击"开始"后游戏画面显示黑屏，说明屏幕共享权限没有真正授予。请按以下步骤解决：
-
-1. **停止 Xcode 运行**
-2. **打开系统设置** → **隐私与安全性** → **屏幕共享**
-3. **找到** `Agora-Rtc-Extension-Demo-desktop` **项目**，先将其**删除**
-4. **点击加号 (+)** 重新添加，添加路径为：
-   ```
-   <你的项目路径>/build/mac/proj/Debug/Agora-Rtc-Extension-Demo-desktop
-   ```
-5. **重新运行 Xcode**
-6. **进入 main 场景**，点击 **Screen 授权按钮**
-7. 如果 Xcode 日志显示授权成功，且系统**没有弹出任何权限弹窗**，说明权限已正确授予
-8. 此时可以进入屏幕共享 case 进行测试
-
-> **注意：** 如果系统仍然弹出权限弹窗，说明权限未正确授予，请重复上述步骤。
+> - ³ **macOS 屏幕共享**：如果已获取屏幕窗口图标和缩略图，但点击"开始"后显示黑屏，说明权限未正确授予。解决方法：停止 Xcode → 系统设置 → 隐私与安全性 → 屏幕共享 → 删除 `Agora-Rtc-Extension-Demo-desktop` → 点击 (+) 重新添加，路径为 `<你的项目路径>/build/mac/proj/Debug/Agora-Rtc-Extension-Demo-desktop` → 重新运行 Xcode → 进入 main 场景 → 点击 Screen 授权按钮 → 若 Xcode 日志显示成功且无系统弹窗，则权限已授予。
 
 ### 快速开始
 
 1. 克隆此仓库
-2. 使用 Cocos Creator (>= 3.8.8) 打开项目
-3. 运行 `main` 场景
-4. 点击权限按钮授予设备访问权限
-5. 选择一个演示场景，点击 "Go" 跳转
+2. 克隆 [Agora RTC Extension](https://github.com/xiayangqun/agora-rtc-extension-for-cocos-creator) 插件到项目的 `extensions` 目录下，并检出 `main` 分支：
+   ```bash
+   cd extensions
+   git clone https://github.com/xiayangqun/agora-rtc-extension-for-cocos-creator.git
+   cd agora-rtc-extension-for-cocos-creator
+   git checkout main
+   ```
+3. 构建 Agora RTC Extension 插件：
+   ```bash
+   cd extensions/agora-rtc-extension-for-cocos-creator
+   npm install
+   npm run build
+   ```
+4. 构建原生权限插件：
+   ```bash
+   cd extensions/agora-demo-native-permissions
+   npm install
+   npm run build
+   ```
+5. 使用 Cocos Creator 打开项目，进入**扩展**面板，点击**刷新**，**激活两个插件**
+6. 运行 `main` 场景
+7. 点击权限按钮授予设备访问权限
+8. 选择一个演示场景，点击 "Go" 跳转
 
 ---
 
