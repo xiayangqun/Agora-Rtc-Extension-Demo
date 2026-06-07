@@ -1,8 +1,9 @@
-import { find, Slider, Node, sys, native } from 'cc';
+import { find, Node, sys, native } from 'cc';
 import { _decorator, Component } from 'cc';
 import { IMediaPlayer, IMediaPlayerSourceObserver, MEDIA_PLAYER_STATE, MEDIA_PLAYER_REASON, MEDIA_PLAYER_EVENT, PLAYER_PRELOAD_EVENT, VIDEO_SOURCE_TYPE } from 'db://agora-rtc-extension-for-cocos-creator/agora-rtc';
 import type { SrcInfo, PlayerUpdatedInfo, CacheStatistics, PlayerPlaybackStats, IRtcEngineEx } from 'db://agora-rtc-extension-for-cocos-creator/agora-rtc';
 import { LogContent, LOG_CONTENT_LEVEL } from './LogContent';
+import { MediaPlayerSlider } from './MediaPlayerSlider';
 import { resources, VideoClip, Asset } from 'cc';
 import { BaseCanvas } from '../base/BaseCanvas';
 import { Label } from 'cc';
@@ -90,8 +91,8 @@ export class MediaItem extends Component {
     }
 
     /** Slider component reference — both displays progress and allows seek. */
-    @property(Slider)
-    public seekSlider: Slider = null;
+    @property(MediaPlayerSlider)
+    public seekSlider: MediaPlayerSlider = null;
 
     @property(Label)
     public idLabel: Label = null;
@@ -108,9 +109,6 @@ export class MediaItem extends Component {
     set duration(value: number) {
         this._duration = value;
     }
-
-    /** Whether the user is currently dragging the seek slider. */
-    _isSeeking: boolean = false;
 
     /** Player event observer instance. */
     private _playerObserver: MediaItemPlayerObserver = null;
@@ -213,7 +211,7 @@ export class MediaItem extends Component {
 
     /** @internal Called by MediaItemPlayerObserver.onPositionChanged */
     _onPositionUpdate(positionMs: number) {
-        if (this._isSeeking || !this.seekSlider) return;
+        if (!this.seekSlider || !this.seekSlider.canSetProgress) return;
         if (this._duration > 0) {
             this.seekSlider.progress = Math.min(positionMs / this._duration, 1);
         }
@@ -285,8 +283,6 @@ export class MediaItem extends Component {
     }
 
     async copyNativeUrlToSandBox(nativeUrl: string): Promise<string> {
-        //todo 在原生平台上，直接使用 nativeUrl 可能会因为权限问题导致无法访问。需要将视频文件复制到沙箱目录下再打开。
-        // 要考虑四个原生平台的差异性来实现这个函数
 
         if (nativeUrl.startsWith('http://') || nativeUrl.startsWith('https://')) return nativeUrl;
         const fileUtils = native.fileUtils;
@@ -326,14 +322,16 @@ export class MediaItem extends Component {
         if (path.startsWith('file://') || path.startsWith('http://') || path.startsWith('https://')) {
             return path;
         }
+        if (!sys.isNative) {
+            return path;
+        }
         return 'file://' + path;
     }
 
 
     async _open(url: string) {
-        const openUrl = this.toMediaPlayerUrl(url);
-        this.logContent.print(LOG_CONTENT_LEVEL.INFO, 'media player open url: ', openUrl);
-        const errorCode = await this._meidaPlayer.open(openUrl, 0);
+        this.logContent.print(LOG_CONTENT_LEVEL.INFO, 'media player open url: ', url);
+        const errorCode = await this._meidaPlayer.open(url, 0);
         if (errorCode === 0) {
             this.logContent.print(LOG_CONTENT_LEVEL.INFO, 'open success, errorCode: ', errorCode);
             this.optionsBtns.forEach(btn => btn.active = false);
@@ -407,13 +405,11 @@ export class MediaItem extends Component {
     // ===================== Seek slider (bind to Slider.slideEvents) =====================
 
     /**
-     * Called when the user drags the seek slider.
-     * @param value Slider position 0~1.
+     * Called via MediaPlayerSlider.slideEvents when the user finishes a drag or clicks the seek slider.
      */
-    async seek(slider: Slider) {
+    async seek(slider: MediaPlayerSlider) {
         const value = slider.progress;
         if (!this._meidaPlayer || this._duration <= 0) return;
-        this._isSeeking = true;
         const clampedValue = Math.max(0, Math.min(1, value));
         if (this.seekSlider) this.seekSlider.progress = clampedValue;
         const seekPos = Math.floor(clampedValue * this._duration);
@@ -423,6 +419,5 @@ export class MediaItem extends Component {
         } else {
             this.logContent.print(LOG_CONTENT_LEVEL.ERROR, 'seek failed, pos: ', seekPos, 'ms, errorCode: ', errorCode);
         }
-        this._isSeeking = false;
     }
 }
